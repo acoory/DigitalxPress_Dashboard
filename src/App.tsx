@@ -1,26 +1,45 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Navigate,
+  Routes,
+  BrowserRouter,
+} from "react-router-dom";
+import Login from "./pages/Login";
+import "./App.css";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
+
+interface PrivateRouteProps {
+  isAuthenticated: boolean;
+  children: React.ReactNode;
+}
+
+const PrivateRoute: React.FC<PrivateRouteProps> = ({
+  children,
+  isAuthenticated,
+}) => {
+  return isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
+};
 
 export default App;
