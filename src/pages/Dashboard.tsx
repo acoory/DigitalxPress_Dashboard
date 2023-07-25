@@ -1,25 +1,37 @@
 import React from "react";
 import Nav from "../components/layout/Nav";
-import { Link } from "react-router-dom";
-import { Breadcrumbs } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import { Typography } from "@mui/material";
+import { AiFillHome } from "react-icons/ai";
+import CardReport from "../components/layout/CardReport";
+import { BiSolidUserCircle } from "react-icons/bi";
 
 export default function Dashboard() {
   return (
     <Nav
-      children={undefined} // Breadcrumbs={
-      //   <Breadcrumbs aria-label="breadcrumb">
-      //     <Link
-      //       underline="hover"
-      //       sx={{ display: "flex", alignItems: "center" }}
-      //       color="inherit"
-      //       href="/"
-      //     >
-      //       <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-      //       MUI
-      //     </Link>
-      //   </Breadcrumbs>
-      // }
-    />
+      Breadcrumbs={() => (
+        <Breadcrumbs aria-label="breadcrumb" separator="/">
+          <AiFillHome />
+          <Typography key="3" color="text.primary">
+            Dashboard
+          </Typography>
+        </Breadcrumbs>
+      )}
+    >
+      <div className="grid-card">
+        <CardReport
+          totalText={"Total utilisateurs"}
+          total={0}
+          Icon={() => <BiSolidUserCircle size={22} color="white" />}
+          color="#202020"
+        />
+        <CardReport
+          totalText={"Total utilisateurs"}
+          total={0}
+          Icon={() => <BiSolidUserCircle size={22} color="white" />}
+          color="#DA1F63"
+        />
+      </div>
+    </Nav>
   );
 }

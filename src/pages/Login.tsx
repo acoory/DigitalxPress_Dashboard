@@ -1,13 +1,12 @@
-import React, { useEffect, useRef } from "react";
+import React, { useContext, useEffect } from "react";
 import { MdEmail } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { FcGoogle } from "react-icons/fc";
 import AdminService from "../services/AdminService";
 import { FirebaseManager } from "../utils/Firebase";
-// import { getMessaging, onMessage } from "firebase/messaging";
-import { initializeApp } from "firebase/app";
 import { onMessage } from "firebase/messaging";
-// import { onMessageListener } from "../utils/Firebase";
+import { UserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 interface FormState {
   email: string;
@@ -26,6 +25,10 @@ export default function Login() {
     email: "",
     password: "",
   });
+
+  const navigate = useNavigate();
+
+  const { setUser, setIsAuthenticated } = useContext(UserContext);
 
   const [notifiable_token, setNotifiableToken] = React.useState("");
 
@@ -46,6 +49,11 @@ export default function Login() {
       AdminService.login(data)
         .then((res) => {
           console.log("res", res);
+
+          localStorage.setItem("admin", JSON.stringify(res.data));
+          setIsAuthenticated(true);
+          setUser(res.data);
+          navigate("/dashboard");
         })
         .catch((err) => {
           console.log("err", err.response.data);
@@ -88,7 +96,7 @@ export default function Login() {
         });
       }
     }
-  }, []);
+  }, [notifiable_token]);
 
   return (
     <div className="bg-default flex justify-center items-center h-screen flex flex-col">
@@ -100,11 +108,7 @@ export default function Login() {
       <div className=" w-[35%] mx-auto bg-[white] flex flex-col items-center py-[40px] rounded-md shadow-md">
         <div>
           <button className="flex items-center  border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md px-[20px] py-[10px]">
-            <FcGoogle
-              size={20}
-              color="#adb5bd"
-              className="ml-[10px] mr-[10px]"
-            />
+            <FcGoogle size={20} color="#adb5bd" className="ml-[10px] mr-[10px]" />
             Sign in with Google
           </button>
         </div>
