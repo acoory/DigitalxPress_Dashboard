@@ -1,14 +1,27 @@
 import React, { useState, createContext } from "react";
 
-export const UserContext = createContext({
-  user: [],
-  setUser: (_user: any) => {},
+interface User {
+  id: number;
+  firstname: string;
+  lastname: string | null;
+  email: string;
+  mobileNumber: string | null;
+}
+
+export const UserContext = createContext<{
+  user: User | null;
+  setUser: (user: User | null) => void;
+  isAuthenticated: boolean;
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
+}>({
+  user: null,
+  setUser: () => {},
   isAuthenticated: false,
-  setIsAuthenticated: (_isAuthenticated: boolean) => {},
+  setIsAuthenticated: () => {},
 });
 
 export const UserConsumer = ({ children }: any) => {
-  const [user, setUser] = useState([]);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
