@@ -100,6 +100,7 @@ export default function Login() {
 
   return (
     <div className="bg-default flex justify-center items-center h-screen flex flex-col">
+   
       {error && (
         <div className="w-[35%] mx-auto bg-[#8f1f1f] flex flex-col items-center py-[10px] rounded-md shadow-md mb-[10px]">
           <p className="text-[80%] font-[400] mx-auto text-[white]">{error}</p>
@@ -150,6 +151,7 @@ export default function Login() {
           Sign in
         </button>
       </div>
+      
     </div>
   );
 }

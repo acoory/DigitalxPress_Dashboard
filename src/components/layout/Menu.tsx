@@ -33,6 +33,16 @@ const Menu = () => {
       title_category: null,
       items: [
         {
+          title: "Horaires & Services",
+          icon: <BiTime color="white" />,
+          link: "/horaires_services",
+        },
+      ],
+    },
+    {
+      title_category: null,
+      items: [
+        {
           title: "Deconnexion",
           icon: <BiLogOut color="white" />,
           link: "/logout",

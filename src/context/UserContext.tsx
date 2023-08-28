@@ -6,6 +6,7 @@ interface User {
   lastname: string | null;
   email: string;
   mobileNumber: string | null;
+
 }
 
 export const UserContext = createContext<{

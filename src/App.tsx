@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import Logout from "./pages/Logout";
 import Reservation from "./pages/Reservation";
 import Profil from "./pages/Profil";
+import Horaires_Services from "./pages/Horaires_Services";
 
 function App() {
   const { setUser, setIsAuthenticated, isAuthenticated } = useContext(UserContext);
@@ -73,6 +74,14 @@ function App() {
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <Profil />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/horaires_services"
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <Horaires_Services />
           </PrivateRoute>
         }
       />

@@ -6,12 +6,14 @@ import { BiSolidUserDetail } from "react-icons/bi";
 import { UserContext } from "../context/UserContext";
 
 export default function Profil() {
-  const { user } = useContext(UserContext);
+  const { user} = useContext(UserContext);
   const [userInfo, setUserInfo] = React.useState({
     firstname: user?.firstname || "",
     lastname: user?.lastname || "",
     mobileNumber: user?.mobileNumber || "",
     email: user?.email || "",
+    password: "",
+    newpassword:  "",
   });
 
   React.useEffect(() => {
@@ -20,9 +22,16 @@ export default function Profil() {
       lastname: user?.lastname || "",
       mobileNumber: user?.mobileNumber || "",
       email: user?.email || "",
+      password: "",
+      newpassword:  "",
     });
     console.log(userInfo);
   }, []);
+
+
+  
+
+  
   return (
     <Nav
       Breadcrumbs={() => (
@@ -90,7 +99,40 @@ export default function Profil() {
               </div>
             </div>
           </div>
+          <hr className="mt-[20px]"></hr>
+          <div className="grid grid-cols-1 ">
+            <div className="grid grid-cols-2 gap-[20px]">
+              <div className="flex flex-col">
+                <label className="text-[#666666] font-[300] text-[14px]">
+                  Mot de passe
+                </label>
+                <input
+                  className="border border-[#E5E5E5] rounded-[5px] px-[10px] py-[5px] mt-[5px]"
+                  value={userInfo?.password}
+                  onChange={(e) => setUserInfo({ ...userInfo, password: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 ">
+            <div className="grid grid-cols-2 gap-[20px]">
+              <div className="flex flex-col">
+                <input
+                  className="border border-[#E5E5E5] rounded-[5px] px-[10px] py-[5px] mt-[5px]"
+                  value={userInfo?.newpassword}
+                  onChange={(e) =>
+                    setUserInfo({ ...userInfo, newpassword: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+          </div>
         </div>
+        <div className="w-full flex items-center justify-center mt-[30px]">
+      <button className="px-[16px] py-[5px] border border-[#7B809A] rounded-[5px] mt-[50px] text-[#7B809A]">
+        Modifier</button>
+    </div>
+        
       </div>
     </Nav>
   );

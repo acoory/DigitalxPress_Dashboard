@@ -42,9 +42,28 @@
 }
 
 .bg-default {
-  background: linear-gradient(87deg, #5f71e4, #0d5fca) !important;
+ 
 
+  /* background: linear-gradient(87deg, #5f71e4, #0d5fca) !important; */
+background-image: url("./Background\ Image.png");
   height: 100vh;
+ position: relative;
+ overflow: hidden;
+
+
+}
+.bg-default::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* background-image: linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.25)),url("./Background\ Image.png"); */
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
 }
 
 .nav {
