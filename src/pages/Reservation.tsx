@@ -3,6 +3,7 @@ import Nav from "../components/layout/Nav";
 import BreadcrumbsComponent from "@mui/material/Breadcrumbs";
 import {Typography} from "@mui/material";
 import {BiTime} from "react-icons/bi";
+import Scheduler from "react-big-scheduler";
 
 function CustomBreadcrumbs() {
     return (
