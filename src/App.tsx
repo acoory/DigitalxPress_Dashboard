@@ -12,7 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import { UserContext } from "./context/UserContext";
 import { useNavigate } from "react-router-dom";
 import Logout from "./pages/Logout";
-import Reservation from "./pages/Reservation";
+import Reservation from "./pages/Reservation.jsx";
 import Profil from "./pages/Profil";
 import Horaires_Services from "./pages/Horaires_Services";
 
