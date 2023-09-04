@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Nav from "../components/layout/Nav";
 import BreadcrumbsComponent from "@mui/material/Breadcrumbs";
 import {Typography} from "@mui/material";
@@ -7,67 +7,6 @@ import Scheduler, {SchedulerData, ViewTypes} from "react-big-scheduler";
 import 'react-big-scheduler/lib/css/style.css';
 import moment from 'moment';
 import DragDropContext from "./withDnDContext";
-
-
-//2. create the view model, put it in the props obj
-let schedulerData = new SchedulerData(moment().format('YYYY-MM-DD'), ViewTypes.Day);
-schedulerData.localeMoment(moment.toString());
-
-let resources = [
-    {
-        id: 'r1',
-        name: 'Resource1'
-    },
-    {
-        id: 'r2',
-        name: 'Resource2',
-    },
-    {
-        id: 'r3',
-        name: 'Resource3',
-    },
-    {
-        id: 'r4',
-        name: 'Resource4',
-    },
-];
-let events = [
-    {
-        id: 1,
-        start: '2023-09-04 09:30:00',
-        end: '2023-09-04 20:30:00',
-        resourceId: 'r1',
-        title: 'I am finished',
-        bgColor: '#D9D9D9'
-    },
-    {
-        id: 2,
-        start: '2023-09-04 10:30:00',
-        end: '2023-09-04 23:30:00',
-        resourceId: 'r2',
-        title: 'I am not resizable',
-        resizable: false
-    },
-    {
-        id: 3,
-        start: '2023-09-04 12:30:00',
-        end: '2023-09-04 15:30:00',
-        resourceId: 'r3',
-        title: 'I am not movable',
-        movable: false
-    },
-    {
-        id: 4,
-        start: '2023-09-04 09:30:00',
-        end: '2023-09-04 13:30:00',
-        resourceId: 'r4',
-        title: 'I am not start-resizable',
-        startResizable: false,
-        evraeiz: 'test'
-    }
-];
-schedulerData.setResources(resources);
-schedulerData.setEvents(events);
 
 
 function CustomBreadcrumbs() {
@@ -89,6 +28,76 @@ function CustomBreadcrumbs() {
 
 
 function Reservation() {
+    let schedulerData = new SchedulerData(moment().format('YYYY-MM-DD'), ViewTypes.Day);
+    schedulerData.localeMoment(moment.toString());
+
+    const [resources, setResources] = useState([
+        {
+            id: 'r1',
+            name: 'Resource1'
+        },
+        {
+            id: 'r2',
+            name: 'Resource2',
+        },
+        {
+            id: 'r3',
+            name: 'Resource3',
+        },
+        {
+            id: 'r4',
+            name: 'Resource4',
+        },
+    ]);
+    const [events, setEvents] = useState([
+        {
+            id: 1,
+            start: '2023-09-04 09:30:00',
+            end: '2023-09-04 20:30:00',
+            resourceId: 'r1',
+            title: 'I am finished',
+            bgColor: '#D9D9D9'
+        },
+        {
+            id: 2,
+            start: '2023-09-04 10:30:00',
+            end: '2023-09-04 23:30:00',
+            resourceId: 'r2',
+            title: 'I am not resizable',
+            resizable: false
+        },
+        {
+            id: 3,
+            start: '2023-09-04 12:30:00',
+            end: '2023-09-04 15:30:00',
+            resourceId: 'r3',
+            title: 'I am not movable',
+            movable: false
+        },
+        {
+            id: 4,
+            start: '2023-09-04 09:30:00',
+            end: '2023-09-04 13:30:00',
+            resourceId: 'r4',
+            title: 'I am not start-resizable',
+            startResizable: false,
+            evraeiz: 'test'
+        }
+    ]);
+    const [viewModel, setViewModel] = useState(
+        new SchedulerData(moment().format("YYYY-MM-DD"), ViewTypes.Day)
+    );
+
+    useEffect(() => {
+        let newSchedulerData = new SchedulerData(
+            moment().format("YYYY-MM-DD"),
+            ViewTypes.Day
+        );
+        newSchedulerData.localeMoment(moment.toString());
+        newSchedulerData.setResources(resources);
+        newSchedulerData.setEvents(events);
+        setViewModel(newSchedulerData);
+    }, [resources, events]);
 
     function nextClick() {
         let newSchedulerData = new SchedulerData(viewModel.startDate, viewModel.viewType);
@@ -134,8 +143,6 @@ function Reservation() {
         }, 500);
     }
 
-
-    const [viewModel, setViewModel] = useState(schedulerData)
 
     return (
         <Nav Breadcrumbs={CustomBreadcrumbs}>
