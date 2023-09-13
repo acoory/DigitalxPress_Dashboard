@@ -39,6 +39,17 @@ const Menu = () => {
         },
       ],
     },
+
+    {
+      title_category: null,
+      items: [
+        {
+          title: "Produits",
+          icon: <BiLogOut color="white" />,
+          link: "/produits",
+        },
+      ],
+    },
     {
       title_category: null,
       items: [

@@ -1,4 +1,4 @@
-import React, { useState, createContext } from "react";
+import React, { useState, createContext, PropsWithChildren } from "react";
 
 interface User {
   id: number;
@@ -6,7 +6,6 @@ interface User {
   lastname: string | null;
   email: string;
   mobileNumber: string | null;
-
 }
 
 export const UserContext = createContext<{
@@ -21,7 +20,7 @@ export const UserContext = createContext<{
   setIsAuthenticated: () => {},
 });
 
-export const UserConsumer = ({ children }: any) => {
+export const UserConsumer = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 

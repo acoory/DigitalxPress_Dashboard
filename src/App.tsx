@@ -15,6 +15,7 @@ import Logout from "./pages/Logout";
 import Reservation from "./pages/Reservation";
 import Profil from "./pages/Profil";
 import Horaires_Services from "./pages/Horaires_Services";
+import Produits from "./pages/Produits";
 
 function App() {
   const { setUser, setIsAuthenticated, isAuthenticated } = useContext(UserContext);
@@ -82,6 +83,14 @@ function App() {
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <Horaires_Services />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/produits"
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <Produits />
           </PrivateRoute>
         }
       />
