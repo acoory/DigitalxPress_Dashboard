@@ -8,7 +8,7 @@ import Scheduler, {SchedulerData, ViewTypes} from "react-big-scheduler";
 import 'react-big-scheduler/lib/css/style.css';
 import moment from 'moment';
 import DragDropContext from "./withDnDContext";
-import axios from "axios";
+import Api from "../utils/Api";
 
 
 function CustomBreadcrumbs() {
@@ -54,7 +54,7 @@ function Reservation() {
 
     useEffect(() => {
         console.log("useEffect 2 has been called!");
-        axios.get('http://localhost:3000/api/reservation')
+        Api.instance.get('/api/reservation')
             .then((data) => {
                 data.data.map((reservation) => {
                     reservation.Reserved.map((reserved) => {
@@ -86,7 +86,8 @@ function Reservation() {
                                 numberOfPerson: reservation.numberOfPersons,
                                 comment: reservation.comment,
                                 status: reservation.status
-                            }
+                            },
+                            resizable: false
                         };
                         setEvents((events) => [...events, newEvent]);
                     });
@@ -94,8 +95,8 @@ function Reservation() {
             })
             .catch((error) => console.error("Erreur lors de la récupération des données:", error));
 
-        axios.get(
-            'http://localhost:3000/api/table',
+        Api.instance.get(
+            '/api/table',
             {withCredentials: true}
         )
             .then((response) => {
@@ -165,8 +166,8 @@ function Reservation() {
 
         let newEvents = [];
 
-        axios.post(
-            'http://localhost:3000/api/reservation/create_reservation',
+        Api.instance.post(
+            'api/reservation/create_reservation',
             dataToSend,
             {withCredentials: true}
         )
@@ -198,7 +199,8 @@ function Reservation() {
                             numberOfPerson: response.data.numberOfPersons,
                             comment: response.data.comment,
                             status: response.data.status
-                        }
+                        },
+                        resizable: false
                     };
                     return newEvent;
                 });
@@ -233,13 +235,13 @@ function Reservation() {
         const dataToSend = newEvents.filter((e) => e.Reservation.id === event.Reservation.id).map((e) => {
             return e.resourceId;
         })
-        axios.post(
-            'http://localhost:3000/api/reservation/' + event.Reservation.id + '/reassign_table',
+        Api.instance.post(
+            '/api/reservation/' + event.Reservation.id + '/reassign_table',
             {tables: dataToSend},
             {withCredentials: true}
         ).then((response) => {
-            axios.post(
-                'http://localhost:3000/api/reservation/' + event.Reservation.id + '/change_date',
+            Api.instance.post(
+                '/api/reservation/' + event.Reservation.id + '/change_date',
                 {date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ")},
                 {withCredentials: true}
             ).then((response) => {
