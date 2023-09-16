@@ -9,23 +9,29 @@ import 'react-big-scheduler/lib/css/style.css';
 import moment from 'moment';
 import DragDropContext from "./withDnDContext";
 import Api from "../utils/Api";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 
 function CustomBreadcrumbs() {
-    return (
-        <BreadcrumbsComponent aria-label="breadcrumb" separator="/">
-            <BiTime size={20}/>
-            <Typography
-                key="3"
-                color="#666666"
-                style={{
-                    fontWeight: 300,
-                }}
-            >
-                Réservations
-            </Typography>
-        </BreadcrumbsComponent>
-    );
+    return (<BreadcrumbsComponent aria-label="breadcrumb" separator="/">
+        <BiTime size={20}/>
+        <Typography
+            key="3"
+            color="#666666"
+            style={{
+                fontWeight: 300,
+            }}
+        >
+            Réservations
+        </Typography>
+    </BreadcrumbsComponent>);
 }
 
 
@@ -35,16 +41,16 @@ function Reservation() {
 
     const [resources, setResources] = useState([]);
     const [events, setEvents] = useState([]);
-    const [viewModel, setViewModel] = useState(
-        new SchedulerData(moment().format("YYYY-MM-DD"), ViewTypes.Day)
-    );
+    const [viewModel, setViewModel] = useState(new SchedulerData(moment().format("YYYY-MM-DD"), ViewTypes.Day));
+
+    const [isModalCreateReservationOpen, setIsModalCreateReservationOpen] = useState(false);
+    const [dataModalCreateReservation, setDataModalCreateReservation] = useState({
+        email: "", date: "", firstname: "", lastname: "", numberOfPersons: 1
+    });
 
     useEffect(() => {
         console.log("useEffect 1 has been called!");
-        let newSchedulerData = new SchedulerData(
-            moment().format("YYYY-MM-DD"),
-            ViewTypes.Day
-        );
+        let newSchedulerData = new SchedulerData(moment().format("YYYY-MM-DD"), ViewTypes.Day);
 
         newSchedulerData.localeMoment(moment.toString());
         newSchedulerData.setResources(resources);
@@ -77,9 +83,7 @@ function Reservation() {
                                 noShow: reservation.Client.countNoShow
                             },
                             Table: {
-                                id: reserved.Table.id,
-                                name: reserved.Table.name,
-                                capacity: reserved.Table.capacity
+                                id: reserved.Table.id, name: reserved.Table.name, capacity: reserved.Table.capacity
                             },
                             Reservation: {
                                 id: reservation.id,
@@ -95,16 +99,12 @@ function Reservation() {
             })
             .catch((error) => console.error("Erreur lors de la récupération des données:", error));
 
-        Api.instance.get(
-            '/api/table',
-            {withCredentials: true}
-        )
+        Api.instance.get('/api/table', {withCredentials: true})
             .then((response) => {
                 const result = response.data;
                 const result2 = result.map((table) => {
                     return {
-                        id: table.id,
-                        name: table.name + " (" + table.capacity + ")",
+                        id: table.id, name: table.name + " (" + table.capacity + ")",
                     }
                 });
                 setResources(result2);
@@ -114,6 +114,13 @@ function Reservation() {
             });
 
     }, []);
+
+    function cleanModalCreateReservation() {
+        setIsModalCreateReservationOpen(false);
+        setDataModalCreateReservation({
+            email: "", date: "", firstname: "", lastname: "", numberOfPersons: 1
+        });
+    }
 
     function nextClick() {
         let newSchedulerData = new SchedulerData(viewModel.startDate, viewModel.viewType);
@@ -151,26 +158,13 @@ function Reservation() {
         setViewModel(newSchedulerData);
     }
 
-    function newEvent(schedulerData, slotId, slotName, start, end, type, item) {
+    function createReservation() {
 
-
-        const dataToSend = {
-            email: "maris13127@gmail.com",
-            mobileNumber: "0646251728",
-            firstname: "anasse",
-            lastname: "el bourachdi",
-            date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ"),
-            numberOfPersons: 3,
-            comment: "commentaire de test"
-        }
-
+        console.log("createReservation has been called!")
+        console.log("Here is the dataModalCreateReservation: ", dataModalCreateReservation)
         let newEvents = [];
 
-        Api.instance.post(
-            'api/reservation/create_reservation',
-            dataToSend,
-            {withCredentials: true}
-        )
+        Api.instance.post('api/reservation/create_reservation', dataModalCreateReservation, {withCredentials: true})
             .then((response) => {
                 newEvents = response.data.Reserved.map((reserved) => {
                     let newEvent = {
@@ -190,9 +184,7 @@ function Reservation() {
                             noShow: response.data.Client.countNoShow
                         },
                         Table: {
-                            id: reserved.Table.id,
-                            name: reserved.Table.name,
-                            capacity: reserved.Table.capacity
+                            id: reserved.Table.id, name: reserved.Table.name, capacity: reserved.Table.capacity
                         },
                         Reservation: {
                             id: response.data.id,
@@ -205,11 +197,20 @@ function Reservation() {
                     return newEvent;
                 });
                 setEvents((events) => [...events, ...newEvents]);
+                setIsModalCreateReservationOpen(false);
+                cleanModalCreateReservation();
             })
             .catch((error) => {
                 console.error("Erreur lors de la récupération des données:", error);
             });
 
+    }
+
+    function newEvent(schedulerData, slotId, slotName, start, end, type, item) {
+        setDataModalCreateReservation({
+            ...dataModalCreateReservation, date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ")
+        });
+        setIsModalCreateReservationOpen(true);
     }
 
     function moveEvent(schedulerData, event, slotId, slotName, start, end) {
@@ -235,16 +236,8 @@ function Reservation() {
         const dataToSend = newEvents.filter((e) => e.Reservation.id === event.Reservation.id).map((e) => {
             return e.resourceId;
         })
-        Api.instance.post(
-            '/api/reservation/' + event.Reservation.id + '/reassign_table',
-            {tables: dataToSend},
-            {withCredentials: true}
-        ).then((response) => {
-            Api.instance.post(
-                '/api/reservation/' + event.Reservation.id + '/change_date',
-                {date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ")},
-                {withCredentials: true}
-            ).then((response) => {
+        Api.instance.post('/api/reservation/' + event.Reservation.id + '/reassign_table', {tables: dataToSend}, {withCredentials: true}).then((response) => {
+            Api.instance.post('/api/reservation/' + event.Reservation.id + '/change_date', {date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ")}, {withCredentials: true}).then((response) => {
                 console.log(response.data);
             }).catch((error) => {
                 console.error("Erreur lors de la récupération des données:", error);
@@ -272,131 +265,177 @@ function Reservation() {
     }
 
     function eventItemPopoverTemplateResolver(schedulerData, eventItem, title, start, end, statusColor) {
-        return (
-            <div style={{padding: '0px'}}>
-                <div style={{
-                    wordWrap: 'break-word',
-                    color: '#333',
-                    marginBottom: '10px',
-                    fontSize: '24px'
-                }}>{title}</div>
-                <div style={{
-                    color: '#666',
-                    marginBottom: '8px',
-                    display: 'flex',
-                    fontSize: '24px',
-                    alignItems: 'center'
-                }}>
-                    <FaUser size={20} color="#666" style={{marginRight: '8px'}}/>
-                    <div>{eventItem.Reservation.numberOfPerson}</div>
+        return (<div style={{padding: '0px'}}>
+            <div style={{
+                wordWrap: 'break-word', color: '#333', marginBottom: '10px', fontSize: '24px'
+            }}>{title}</div>
+            <div style={{
+                color: '#666', marginBottom: '8px', display: 'flex', fontSize: '24px', alignItems: 'center'
+            }}>
+                <FaUser size={20} color="#666" style={{marginRight: '8px'}}/>
+                <div>{eventItem.Reservation.numberOfPerson}</div>
+            </div>
+            <div style={{fontSize: '24px', display: 'flex'}}>
+                <div style={{color: '#4CAF50'}}>
+                    {moment(start).format('HH:mm')}
                 </div>
-                <div style={{fontSize: '24px', display: 'flex'}}>
-                    <div style={{color: '#4CAF50'}}>
-                        {moment(start).format('HH:mm')}
-                    </div>
-                    <div style={{fontSize: '12px'}}>
-                        {moment(start).format('DD MMM')}
-                    </div>
-                    <div style={{margin: '0 15px'}}>
-                        -
-                    </div>
-                    <div style={{color: '#4CAF50'}}>
-                        {moment(end).format('HH:mm')}
-                    </div>
-                    <div style={{fontSize: '12px'}}>
-                        {moment(end).format('DD MMM')}
-                    </div>
+                <div style={{fontSize: '12px'}}>
+                    {moment(start).format('DD MMM')}
                 </div>
-
-                <span>Commentaire:</span>
-                <div style={{
-                    wordWrap: 'break-word',
-                    color: '#666',
-                    marginBottom: '8px',
-                    border: '1px solid #ccc',
-                    padding: '10px',
-                    borderRadius: '5px'
-                }}>
-                    {eventItem.Reservation.comment}
+                <div style={{margin: '0 15px'}}>
+                    -
                 </div>
-
-                <div style={{
-                    wordWrap: 'break-word',
-                    color: '#666',
-                    marginBottom: '15px'
-                }}>
-                    Status: {eventItem.Reservation.status}
+                <div style={{color: '#4CAF50'}}>
+                    {moment(end).format('HH:mm')}
                 </div>
-
-                <div style={{display: 'flex', gap: '10px'}}>
-                    {eventItem.Reservation.status === "Confirmed" && (
-                        <button
-                            onClick={() => modifyEvent(schedulerData, eventItem)}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: '#007BFF',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '5px'
-                            }}
-                        >
-                            Modifier
-                        </button>
-                    )}
-
-                    {eventItem.Reservation.status === "Pending" && (
-                        <button
-                            onClick={() => confirmEvent(schedulerData, eventItem)}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: '#28a745',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '5px'
-                            }}
-                        >
-                            Confirmer
-                        </button>
-                    )}
-
-                    <button
-                        onClick={() => deleteEvent(schedulerData, eventItem)}
-                        style={{
-                            padding: '10px 20px',
-                            backgroundColor: '#dc3545',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '5px'
-                        }}
-                    >
-                        Supprimer
-                    </button>
+                <div style={{fontSize: '12px'}}>
+                    {moment(end).format('DD MMM')}
                 </div>
             </div>
-        );
+
+            <span>Commentaire:</span>
+            <div style={{
+                wordWrap: 'break-word',
+                color: '#666',
+                marginBottom: '8px',
+                border: '1px solid #ccc',
+                padding: '10px',
+                borderRadius: '5px'
+            }}>
+                {eventItem.Reservation.comment}
+            </div>
+
+            <div style={{
+                wordWrap: 'break-word', color: '#666', marginBottom: '15px'
+            }}>
+                Status: {eventItem.Reservation.status}
+            </div>
+
+            <div style={{display: 'flex', gap: '10px'}}>
+                {eventItem.Reservation.status === "Confirmed" && (<button
+                    onClick={() => modifyEvent(schedulerData, eventItem)}
+                    style={{
+                        padding: '10px 20px',
+                        backgroundColor: '#007BFF',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '5px'
+                    }}
+                >
+                    Modifier
+                </button>)}
+
+                {eventItem.Reservation.status === "Pending" && (<button
+                    onClick={() => confirmEvent(schedulerData, eventItem)}
+                    style={{
+                        padding: '10px 20px',
+                        backgroundColor: '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '5px'
+                    }}
+                >
+                    Confirmer
+                </button>)}
+
+                <button
+                    onClick={() => deleteEvent(schedulerData, eventItem)}
+                    style={{
+                        padding: '10px 20px',
+                        backgroundColor: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '5px'
+                    }}
+                >
+                    Supprimer
+                </button>
+            </div>
+        </div>);
     }
 
-    return (
-        <Nav Breadcrumbs={CustomBreadcrumbs}>
+    return (<Nav Breadcrumbs={CustomBreadcrumbs}>
 
-            <Scheduler
-                schedulerData={viewModel}
-                nextClick={nextClick}
-                onSelectDate={onSelectDate}
-                onViewChange={onViewChange}
-                prevClick={prevClick}
+        {isModalCreateReservationOpen && (
+            <Dialog open={isModalCreateReservationOpen} onClose={() => cleanModalCreateReservation()}>
+                <DialogTitle>
+                    Créer une réservation
+                    <IconButton style={{position: 'absolute', top: '10px', right: '10px'}}
+                                onClick={() => setIsModalCreateReservationOpen(false)}>
+                        <CloseIcon/>
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        fullWidth
+                        margin="dense"
+                        label="Email"
+                        type="email"
+                        value={dataModalCreateReservation.email}
+                        onChange={(e) => setDataModalCreateReservation({
+                            ...dataModalCreateReservation, email: e.target.value
+                        })}
+                        placeholder={"(facultatif...)"}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="dense"
+                        label="Prénom"
+                        type="text"
+                        value={dataModalCreateReservation.firstname}
+                        onChange={(e) => setDataModalCreateReservation({
+                            ...dataModalCreateReservation, firstname: e.target.value
+                        })}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="dense"
+                        label="Nombre de personnes"
+                        type="number"
+                        value={dataModalCreateReservation.numberOfPersons}
+                        onChange={(e) => setDataModalCreateReservation({
+                            ...dataModalCreateReservation, numberOfPersons: parseInt(e.target.value)
+                        })}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="dense"
+                        label="Date"
+                        type="datetime-local"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        value={moment(dataModalCreateReservation.date).format("YYYY-MM-DDTHH:mm:ss")}
+                        onChange={(e) => setDataModalCreateReservation({
+                            ...dataModalCreateReservation, date: moment(e.target.value).format("YYYY-MM-DDTHH:mm:ssZ")
+                        })}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => createReservation()} color="primary">
+                        Créer
+                    </Button>
+                </DialogActions>
+            </Dialog>)}
 
-                eventItemClick={(schedulerData, event) => {
-                    console.log(event);
-                }}
-                newEvent={newEvent}
 
-                moveEvent={moveEvent}
+        <Scheduler
+            schedulerData={viewModel}
+            nextClick={nextClick}
+            onSelectDate={onSelectDate}
+            onViewChange={onViewChange}
+            prevClick={prevClick}
 
-                eventItemPopoverTemplateResolver={eventItemPopoverTemplateResolver}
-            />
-        </Nav>
-    );
+            eventItemClick={(schedulerData, event) => {
+                console.log(event);
+            }}
+            newEvent={newEvent}
+
+            moveEvent={moveEvent}
+
+            eventItemPopoverTemplateResolver={eventItemPopoverTemplateResolver}
+        />
+    </Nav>);
 }
 
 
