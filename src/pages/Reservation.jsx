@@ -375,7 +375,6 @@ function Reservation() {
                         onChange={(e) => setDataModalCreateReservation({
                             ...dataModalCreateReservation, email: e.target.value
                         })}
-                        placeholder={"(facultatif...)"}
                     />
                     <TextField
                         fullWidth
