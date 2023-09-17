@@ -39,6 +39,17 @@ const Menu = () => {
         },
       ],
     },
+
+    {
+      title_category: null,
+      items: [
+        {
+          title: "Cartes & Menus",
+          icon: <BiTime color="white" />,
+          link: "/cartes_menus",
+        },
+      ],
+    },
     {
       title_category: null,
       items: [

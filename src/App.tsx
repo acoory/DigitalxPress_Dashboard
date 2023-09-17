@@ -8,6 +8,7 @@ import Logout from "./pages/Logout";
 import Reservation from "./pages/Reservation";
 import Profil from "./pages/Profil";
 import Horaires_Services from "./pages/Horaires_Services";
+import CardMenu from "./pages/CardMenu";
 
 function App() {
     const {setUser, setIsAuthenticated, isAuthenticated} = useContext(UserContext);
@@ -75,6 +76,15 @@ function App() {
                 element={
                     <PrivateRoute isAuthenticated={isAuthenticated}>
                         <Horaires_Services/>
+                    </PrivateRoute>
+                }
+            />
+
+            <Route
+                path="cartes_menus"
+                element={
+                    <PrivateRoute isAuthenticated={isAuthenticated}>
+                        <CardMenu/>
                     </PrivateRoute>
                 }
             />
