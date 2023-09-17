@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import Logout from "./pages/Logout";
 import Reservation from "./pages/Reservation";
 import Profil from "./pages/Profil";
-import Horaires_Services from "./pages/Horaires_Services";
+// import Horaires_Services from "./pages/Horaires_Services";
 import Produits from "./pages/Produits";
 import Horaire from "./pages/Horaire";
 import Table from "./pages/Table";
@@ -84,15 +84,15 @@ function App() {
         path="/horaire"
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
-            <Horaire/>
+            <Horaire />
           </PrivateRoute>
         }
       />
-       <Route
+      <Route
         path="/table"
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
-            <Table/>
+            <Table />
           </PrivateRoute>
         }
       />
