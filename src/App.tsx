@@ -16,6 +16,8 @@ import Reservation from "./pages/Reservation";
 import Profil from "./pages/Profil";
 import Horaires_Services from "./pages/Horaires_Services";
 import Produits from "./pages/Produits";
+import Horaire from "./pages/Horaire";
+import Table from "./pages/Table";
 
 function App() {
   const { setUser, setIsAuthenticated, isAuthenticated } = useContext(UserContext);
@@ -79,10 +81,18 @@ function App() {
         }
       />
       <Route
-        path="/horaires_services"
+        path="/horaire"
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
-            <Horaires_Services />
+            <Horaire/>
+          </PrivateRoute>
+        }
+      />
+       <Route
+        path="/table"
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <Table/>
           </PrivateRoute>
         }
       />
