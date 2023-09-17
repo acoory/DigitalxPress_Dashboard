@@ -25,6 +25,66 @@ class AdminService {
     });
     return response;
   }
+
+  async getUserInfo(id: number) {
+    try {
+      const response = await this.instance.get(`/api/admin/${id}`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      // throw new Error(error);
+    }
+  }
+
+  async UpdateAdmin(id: number, data: any) {
+    const formatMobileNumber = (mobileNumber: string) => {
+      if (mobileNumber.length > 1) {
+        if (mobileNumber[0] === "0") {
+          console.log(mobileNumber.substring(1));
+          return parseInt(mobileNumber.substring(1));
+        } else {
+          return parseInt(mobileNumber);
+        }
+      } else {
+        return mobileNumber ? parseInt(mobileNumber) : null;
+      }
+    };
+
+    formatMobileNumber(data.mobileNumber);
+    const formatData = {
+      firstname: data.firstname,
+      lastname: data.lastname,
+      mobileNumber:
+        typeof formatMobileNumber(data.mobileNumber) === "number"
+          ? formatMobileNumber(data.mobileNumber)
+          : 1,
+      email: data.email,
+    };
+
+    try {
+      const response = await this.instance.put(`/api/admin/${id}`, formatData, {
+        withCredentials: true,
+      });
+      return response;
+    } catch (error) {
+      // throw new Error(error);
+      console.log(error);
+    }
+  }
+
+  async updatePassword(id: number, data: any) {
+    console.log(data);
+    try {
+      const response = await this.instance.put(`/api/admin/password/${id}`, data, {
+        withCredentials: true,
+      });
+      return response;
+    } catch (error) {
+      // throw new Error(error);
+      console.log(error);
+    }
+  }
 }
 
 var adminService = new AdminService();

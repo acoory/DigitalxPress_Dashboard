@@ -9,7 +9,7 @@ interface User {
 }
 
 export const UserContext = createContext<{
-  user: User | null;
+  user: User | any;
   setUser: (user: User | null) => void;
   isAuthenticated: boolean;
   setIsAuthenticated: (isAuthenticated: boolean) => void;

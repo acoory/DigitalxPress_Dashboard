@@ -44,7 +44,11 @@ export class ProduitsService {
 
   async getProduct(id: number) {
     try {
-      const req = Promise.all([this.getOne(id), this.getSupplements(id)]).then((res) => {
+      const req = Promise.all([
+        this.getOne(id),
+        this.getSupplements(id),
+        this.getProductChoices(id),
+      ]).then((res) => {
         // console.log("res", res);
         return res;
       });
@@ -83,6 +87,17 @@ export class ProduitsService {
         withCredentials: true,
       });
       return response;
+    } catch (error) {
+      // throw new Error(error);
+    }
+  }
+
+  async getProductChoices(id: number) {
+    try {
+      const response = await this.instance.get(`/api/product-choice/product/${id}`, {
+        withCredentials: true,
+      });
+      return response.data.choiceTypeList[0] ? response.data.choiceTypeList[0] : [];
     } catch (error) {
       // throw new Error(error);
     }

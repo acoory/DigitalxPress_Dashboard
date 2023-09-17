@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Nav from "../components/layout/Nav";
 import { Breadcrumbs, Chip, InputLabel, ListItem, Typography } from "@mui/material";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -9,7 +9,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { AiFillDelete } from "react-icons/ai";
 import { MdDeleteSweep } from "react-icons/md";
 import { Modal, Box } from "@mui/material";
-import { WithContext as ReactTags } from "react-tag-input";
+// import { WithContext as ReactTags } from "react-tag-input";
 
 type Product = {
   id: number | any;
@@ -29,6 +29,7 @@ export default function Produits() {
   const [products, setProducts] = React.useState<Product[]>([]);
   const [product, setProduct] = React.useState<any>({});
   const [supplements, setSupplements] = React.useState<any>([]);
+  const [tagsOptionChoice, setTagsOptionChoice] = useState<any>([]);
   const produitService = new ProduitsService();
 
   const [choiceProduct, setChoiceProduct] = React.useState<any>({
@@ -63,6 +64,7 @@ export default function Produits() {
         console.log("res", res);
         setProduct(res[0]);
         setSupplements(res[1]);
+        setTagsOptionChoice(res[2].optionList);
       });
 
       // console.log("res", res);
@@ -89,6 +91,20 @@ export default function Produits() {
     boxShadow: 24,
     p: 4,
     borderRadius: "10px",
+  };
+
+  const [names, setNames] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState("");
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleAddOption = () => {
+    if (inputValue.trim() !== "" && !names.includes(inputValue)) {
+      setNames([...names, inputValue]);
+      setInputValue("");
+    }
   };
 
   return (
@@ -313,35 +329,42 @@ export default function Produits() {
                 className="border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md px-[20px] py-[10px] w-full"
                 type="text"
               />
-              <ReactTags
-                // tags={tags}
-                // suggestions={suggestions}
-                // delimiters={delimiters}
-                // handleDelete={handleDelete}
-                // handleAddition={handleAddition}
-                // handleDrag={handleDrag}
-                // handleTagClick={handleTagClick}
-                inputFieldPosition="bottom"
-                autocomplete
-              />
+              <div className="tags-input-container">
+                {tagsOptionChoice
+                  ? Object.values(tagsOptionChoice).map((option: any, i: any) => (
+                      <div className="tag-item" key={i}>
+                        <span className="text">{option.name}</span>
+                        <span className="close">&times;</span>
+                      </div>
+                    ))
+                  : null}
 
-              {choiceProduct.choiceName.length > 0
-                ? choiceProduct.listOption.map((option: any, i: any) => (
-                    <ListItem key={i}>
-                      <Chip
-                        label={option}
-                        onDelete={() => {
-                          setChoiceProduct({
-                            ...choiceProduct,
-                            listOption: (choiceProduct.listOption as any).filter(
-                              (option: any) => option.choiceName !== option.choiceName
-                            ),
-                          });
-                        }}
-                      />
-                    </ListItem>
-                  ))
-                : null}
+                <input
+                  onKeyDown={(e: any) => {
+                    if (e.key === "Enter") {
+                      if (tagsOptionChoice) {
+                        setTagsOptionChoice([
+                          ...tagsOptionChoice,
+                          {
+                            name: e.target.value,
+                          },
+                        ]);
+                      } else {
+                        setTagsOptionChoice([
+                          {
+                            name: e.target.value,
+                          },
+                        ]);
+                      }
+                      e.target.value = "";
+                      console.log("tagsOptionChoice", tagsOptionChoice);
+                    }
+                  }}
+                  type="text"
+                  className="tags-input"
+                  placeholder="Ajouter un choix"
+                />
+              </div>
 
               <button onClick={() => console.log(product)}>trst</button>
             </div>
