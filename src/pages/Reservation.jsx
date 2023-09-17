@@ -358,21 +358,26 @@ function Reservation() {
                 </Box>
 
                 {/* Commentaire */}
-                <Typography variant="subtitle2" gutterBottom>
-                    Commentaire:
-                </Typography>
-                <Box
-                    wordWrap="break-word"
-                    marginBottom={2}
-                    border={1}
-                    borderColor="grey.300"
-                    p={1}
-                    borderRadius={1}
-                >
-                    <Typography color="textSecondary">
-                        {eventItem.Reservation.comment}
-                    </Typography>
-                </Box>
+                {eventItem.Reservation.comment &&
+                    <>
+
+                        <Typography variant="subtitle2" gutterBottom>
+                            Commentaire:
+                        </Typography>
+                        <Box
+                            style={{wordWrap: 'break-word'}}
+                            marginBottom={2}
+                            border={1}
+                            borderColor="grey.300"
+                            p={1}
+                            borderRadius={1}
+                        >
+                            <Typography color="textSecondary">
+                                {eventItem.Reservation.comment}
+                            </Typography>
+                        </Box>
+                    </>
+                }
 
                 {/* Status */}
                 <Typography variant="subtitle2" color="textSecondary" gutterBottom>
