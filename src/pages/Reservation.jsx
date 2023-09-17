@@ -3,7 +3,7 @@ import Nav from "../components/layout/Nav";
 import BreadcrumbsComponent from "@mui/material/Breadcrumbs";
 import {Box, TextField, Typography} from "@mui/material";
 import {BiTime} from "react-icons/bi";
-import {FaBan, FaCalendarAlt, FaUser} from 'react-icons/fa';
+import {FaBan, FaCalendarCheck, FaEnvelope, FaPhone, FaUsers} from 'react-icons/fa';
 import Scheduler, {SchedulerData, ViewTypes} from "react-big-scheduler";
 import 'react-big-scheduler/lib/css/style.css';
 import moment from 'moment';
@@ -78,7 +78,7 @@ function Reservation() {
                                 firstname: reservation.Client.firstname,
                                 lastname: reservation.Client.lastname,
                                 email: reservation.Client.email,
-                                phone: reservation.Client.mobileNumber,
+                                mobileNumber: reservation.Client.mobileNumber,
                                 count_no_shows: reservation.Client.count_no_shows,
                                 count_reservations: reservation.Client.count_reservations
                             },
@@ -180,7 +180,7 @@ function Reservation() {
                             firstname: response.data.Client.firstname,
                             lastname: response.data.Client.lastname,
                             email: response.data.Client.email,
-                            phone: response.data.Client.mobileNumber,
+                            mobileNumber: response.data.Client.mobileNumber,
                             count_no_shows: response.data.Client.count_no_shows,
                             count_reservations: response.data.Client.count_reservations
                         },
@@ -273,26 +273,44 @@ function Reservation() {
                     {eventItem.Client.firstname} {eventItem.Client.lastname}
                 </Typography>
 
-                <Box display="flex" alignItems="center" marginBottom={2}>
-                    <FaUser size={20} color="#666" style={{marginRight: '8px'}}/>
-                    <Typography variant="subtitle1">
-                        {eventItem.Reservation.numberOfPerson}
-                    </Typography>
+                <Box display="flex" marginBottom={2} justifyContent={"space-between"}>
+                    <Box display="flex" alignItems="center">
+                        <FaEnvelope size={20} color="#666" style={{marginRight: '8px'}}/>
+                        <Typography variant="body1" color="textSecondary">
+                            {eventItem.Client.email}
+                        </Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                        <FaPhone size={20} color="#666" style={{marginRight: '8px'}}/>
+                        <Typography variant="body1" color="textSecondary">
+                            {eventItem.Client.mobileNumber}
+                        </Typography>
+                    </Box>
                 </Box>
 
-                <Box display="flex" justifyContent="space-between">
-                    <Box display="flex" alignItems="center">
-                        <FaBan size={20} color="#666" style={{marginRight: '8px'}}/> {/* Example icon */}
-                        <Typography variant="subtitle2" color="textSecondary">
-                            No-shows: {eventItem.Client.count_no_shows}
+                <Box display="flex" marginBottom={2} justifyContent={"space-between"}>
+
+                    <Box display="flex" alignItems="center" marginBottom={1}>
+                        <FaUsers size={20} color="#666" style={{marginRight: '8px'}}/>
+                        <Typography variant="subtitle1">
+                            {eventItem.Reservation.numberOfPerson} pers.
                         </Typography>
                     </Box>
-                    <Box display="flex" alignItems="center">
-                        <FaCalendarAlt size={20} color="#666" style={{marginRight: '8px'}}/> {/* Example icon */}
-                        <Typography variant="subtitle2" color="textSecondary">
-                            Réservations précédentes: {eventItem.Client.count_reservations}
+
+                    <Box display="flex" alignItems="center" marginBottom={1}>
+                        <FaCalendarCheck size={20} color="#666" style={{marginRight: '8px'}}/>
+                        <Typography variant="subtitle1">
+                            {eventItem.Client.count_reservations} réserv.
                         </Typography>
                     </Box>
+
+                    <Box display="flex" alignItems="center" marginBottom={1}>
+                        <FaBan size={20} color="#666" style={{marginRight: '8px'}}/>
+                        <Typography variant="subtitle1">
+                            {eventItem.Client.count_no_shows} no-shows
+                        </Typography>
+                    </Box>
+
                 </Box>
 
                 <Box marginBottom={2} display="flex" alignItems="center">
