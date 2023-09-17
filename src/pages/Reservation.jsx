@@ -49,9 +49,7 @@ function Reservation() {
 
     useEffect(() => {
         console.log("useEffect 1 has been called!");
-        let newSchedulerData = new SchedulerData(moment().format("YYYY-MM-DD"), ViewTypes.Day);
-
-        newSchedulerData.localeMoment(moment.toString());
+        let newSchedulerData = new SchedulerData(viewModel.startDate, viewModel.viewType);
         newSchedulerData.setResources(resources);
         newSchedulerData.setEvents(events);
         setViewModel(newSchedulerData);
@@ -101,13 +99,12 @@ function Reservation() {
 
         Api.instance.get('/api/table', {withCredentials: true})
             .then((response) => {
-                const result = response.data;
-                const result2 = result.map((table) => {
+                const result = response.data.map((table) => {
                     return {
                         id: table.id, name: table.name + " (" + table.capacity + ")",
                     }
                 });
-                setResources(result2);
+                setResources(result);
             })
             .catch((error) => {
                 console.error("Erreur lors de la récupération des données:", error);
@@ -122,39 +119,33 @@ function Reservation() {
         });
     }
 
-    function nextClick() {
-        let newSchedulerData = new SchedulerData(viewModel.startDate, viewModel.viewType);
+    function nextClick(schedulerData) {
+        let newSchedulerData = new SchedulerData(schedulerData.startDate, schedulerData.viewType);
         newSchedulerData.next();
         newSchedulerData.setResources(resources);
         newSchedulerData.setEvents(events);
         setViewModel(newSchedulerData);
-        // Trigger window resize event
-        window.dispatchEvent(new Event('resize'));
     }
 
-    function prevClick() {
-        let newSchedulerData = new SchedulerData(viewModel.startDate, viewModel.viewType);
+    function prevClick(schedulerData) {
+        let newSchedulerData = new SchedulerData(schedulerData.startDate, schedulerData.viewType);
         newSchedulerData.prev();
         newSchedulerData.setResources(resources);
         newSchedulerData.setEvents(events);
         setViewModel(newSchedulerData);
-        // Trigger window resize event
-        window.dispatchEvent(new Event('resize'));
     }
 
     function onSelectDate(schedulerData, date) {
-        let newSchedulerData = new SchedulerData(date, viewModel.viewType, viewModel.isEventPerspective);
-        newSchedulerData.setDate(date);
-        newSchedulerData.setEvents(events);
+        let newSchedulerData = new SchedulerData(date, schedulerData.viewType);
         newSchedulerData.setResources(resources);
+        newSchedulerData.setEvents(events);
         setViewModel(newSchedulerData);
     }
 
     function onViewChange(schedulerData, view) {
-        let newSchedulerData = new SchedulerData(viewModel.startDate, view.viewType);
-        newSchedulerData.setViewType(view.viewType);
-        newSchedulerData.setEvents(events);
+        let newSchedulerData = new SchedulerData(schedulerData.startDate, view.viewType, schedulerData.isEventPerspective);
         newSchedulerData.setResources(resources);
+        newSchedulerData.setEvents(events);
         setViewModel(newSchedulerData);
     }
 
@@ -269,10 +260,12 @@ function Reservation() {
 
         return (
             <Box p={2}>
+                {/* Nom du client */}
                 <Typography variant="h6" gutterBottom>
                     {eventItem.Client.firstname} {eventItem.Client.lastname}
                 </Typography>
 
+                {/* Email et numéro de téléphone du client */}
                 <Box display="flex" marginBottom={2} justifyContent={"space-between"}>
                     <Box display="flex" alignItems="center">
                         <FaEnvelope size={20} color="#666" style={{marginRight: '8px'}}/>
@@ -288,6 +281,7 @@ function Reservation() {
                     </Box>
                 </Box>
 
+                {/* Nombre de personnes, nombre de réservations et nombre de no-shows du client */}
                 <Box display="flex" marginBottom={2} justifyContent={"space-between"}>
 
                     <Box display="flex" alignItems="center" marginBottom={1}>
@@ -313,6 +307,7 @@ function Reservation() {
 
                 </Box>
 
+                {/* Heure de début et de fin */}
                 <Box marginBottom={2} display="flex" alignItems="center">
                     {/* Heure de début */}
                     <Typography variant="h4" color="primary" style={{marginRight: '15px', fontWeight: 'bold'}}>
@@ -339,7 +334,30 @@ function Reservation() {
                     </Typography>
                 </Box>
 
+                {/* Tables associées à la même réservation */}
+                <Box marginBottom={2}>
+                    <Typography variant="subtitle2" gutterBottom>
+                        Tables associées:
+                    </Typography>
+                    <Box display="flex" alignItems="center" gap={1}>
+                        {events.filter((e) => e.Reservation.id === eventItem.Reservation.id).map((e) => {
+                            return (
+                                <Box
+                                    key={e.id}
+                                    bgcolor={e.bgColor}
+                                    color="white"
+                                    borderRadius={1}
+                                    p={1}
+                                    fontSize={12}
+                                >
+                                    {e.Table.name}
+                                </Box>
+                            );
+                        })}
+                    </Box>
+                </Box>
 
+                {/* Commentaire */}
                 <Typography variant="subtitle2" gutterBottom>
                     Commentaire:
                 </Typography>
@@ -356,10 +374,12 @@ function Reservation() {
                     </Typography>
                 </Box>
 
+                {/* Status */}
                 <Typography variant="subtitle2" color="textSecondary" gutterBottom>
                     Status: {eventItem.Reservation.status}
                 </Typography>
 
+                {/* Boutons d'action */}
                 <Box display="flex" gap={2}>
                     <Button variant="contained" color="primary" onClick={() => modifyEvent(schedulerData, eventItem)}>
                         Modifier
