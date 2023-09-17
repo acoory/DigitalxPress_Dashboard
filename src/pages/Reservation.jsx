@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
 import Nav from "../components/layout/Nav";
 import BreadcrumbsComponent from "@mui/material/Breadcrumbs";
-import {Typography} from "@mui/material";
+import {Box, TextField, Typography} from "@mui/material";
 import {BiTime} from "react-icons/bi";
-import {FaUser} from 'react-icons/fa';
+import {FaBan, FaCalendarAlt, FaUser} from 'react-icons/fa';
 import Scheduler, {SchedulerData, ViewTypes} from "react-big-scheduler";
 import 'react-big-scheduler/lib/css/style.css';
 import moment from 'moment';
@@ -13,7 +13,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
@@ -80,7 +79,8 @@ function Reservation() {
                                 lastname: reservation.Client.lastname,
                                 email: reservation.Client.email,
                                 phone: reservation.Client.mobileNumber,
-                                noShow: reservation.Client.countNoShow
+                                count_no_shows: reservation.Client.count_no_shows,
+                                count_reservations: reservation.Client.count_reservations
                             },
                             Table: {
                                 id: reserved.Table.id, name: reserved.Table.name, capacity: reserved.Table.capacity
@@ -181,7 +181,8 @@ function Reservation() {
                             lastname: response.data.Client.lastname,
                             email: response.data.Client.email,
                             phone: response.data.Client.mobileNumber,
-                            noShow: response.data.Client.countNoShow
+                            count_no_shows: response.data.Client.count_no_shows,
+                            count_reservations: response.data.Client.count_reservations
                         },
                         Table: {
                             id: reserved.Table.id, name: reserved.Table.name, capacity: reserved.Table.capacity
@@ -265,93 +266,99 @@ function Reservation() {
     }
 
     function eventItemPopoverTemplateResolver(schedulerData, eventItem, title, start, end, statusColor) {
-        return (<div style={{padding: '0px'}}>
-            <div style={{
-                wordWrap: 'break-word', color: '#333', marginBottom: '10px', fontSize: '24px'
-            }}>{title}</div>
-            <div style={{
-                color: '#666', marginBottom: '8px', display: 'flex', fontSize: '24px', alignItems: 'center'
-            }}>
-                <FaUser size={20} color="#666" style={{marginRight: '8px'}}/>
-                <div>{eventItem.Reservation.numberOfPerson}</div>
-            </div>
-            <div style={{fontSize: '24px', display: 'flex'}}>
-                <div style={{color: '#4CAF50'}}>
-                    {moment(start).format('HH:mm')}
-                </div>
-                <div style={{fontSize: '12px'}}>
-                    {moment(start).format('DD MMM')}
-                </div>
-                <div style={{margin: '0 15px'}}>
-                    -
-                </div>
-                <div style={{color: '#4CAF50'}}>
-                    {moment(end).format('HH:mm')}
-                </div>
-                <div style={{fontSize: '12px'}}>
-                    {moment(end).format('DD MMM')}
-                </div>
-            </div>
 
-            <span>Commentaire:</span>
-            <div style={{
-                wordWrap: 'break-word',
-                color: '#666',
-                marginBottom: '8px',
-                border: '1px solid #ccc',
-                padding: '10px',
-                borderRadius: '5px'
-            }}>
-                {eventItem.Reservation.comment}
-            </div>
+        return (
+            <Box p={2}>
+                <Typography variant="h6" gutterBottom>
+                    {eventItem.Client.firstname} {eventItem.Client.lastname}
+                </Typography>
 
-            <div style={{
-                wordWrap: 'break-word', color: '#666', marginBottom: '15px'
-            }}>
-                Status: {eventItem.Reservation.status}
-            </div>
+                <Box display="flex" alignItems="center" marginBottom={2}>
+                    <FaUser size={20} color="#666" style={{marginRight: '8px'}}/>
+                    <Typography variant="subtitle1">
+                        {eventItem.Reservation.numberOfPerson}
+                    </Typography>
+                </Box>
 
-            <div style={{display: 'flex', gap: '10px'}}>
-                {eventItem.Reservation.status === "Confirmed" && (<button
-                    onClick={() => modifyEvent(schedulerData, eventItem)}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#007BFF',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px'
-                    }}
+                <Box display="flex" justifyContent="space-between">
+                    <Box display="flex" alignItems="center">
+                        <FaBan size={20} color="#666" style={{marginRight: '8px'}}/> {/* Example icon */}
+                        <Typography variant="subtitle2" color="textSecondary">
+                            No-shows: {eventItem.Client.count_no_shows}
+                        </Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                        <FaCalendarAlt size={20} color="#666" style={{marginRight: '8px'}}/> {/* Example icon */}
+                        <Typography variant="subtitle2" color="textSecondary">
+                            Réservations précédentes: {eventItem.Client.count_reservations}
+                        </Typography>
+                    </Box>
+                </Box>
+
+                <Box marginBottom={2} display="flex" alignItems="center">
+                    {/* Heure de début */}
+                    <Typography variant="h4" color="primary" style={{marginRight: '15px', fontWeight: 'bold'}}>
+                        {moment(start).format('HH:mm')}
+                    </Typography>
+
+                    {/* Jour de début */}
+                    <Typography variant="body2" color="textSecondary">
+                        {moment(start).format('DD MMM')}
+                    </Typography>
+
+                    <Typography style={{margin: '0 15px', fontSize: '12px'}}>
+                        -
+                    </Typography>
+
+                    {/* Heure de fin */}
+                    <Typography variant="h4" color="primary" style={{marginRight: '15px', fontWeight: 'bold'}}>
+                        {moment(end).format('HH:mm')}
+                    </Typography>
+
+                    {/* Jour de fin */}
+                    <Typography variant="body2" color="textSecondary">
+                        {moment(end).format('DD MMM')}
+                    </Typography>
+                </Box>
+
+
+                <Typography variant="subtitle2" gutterBottom>
+                    Commentaire:
+                </Typography>
+                <Box
+                    wordWrap="break-word"
+                    marginBottom={2}
+                    border={1}
+                    borderColor="grey.300"
+                    p={1}
+                    borderRadius={1}
                 >
-                    Modifier
-                </button>)}
+                    <Typography color="textSecondary">
+                        {eventItem.Reservation.comment}
+                    </Typography>
+                </Box>
 
-                {eventItem.Reservation.status === "Pending" && (<button
-                    onClick={() => confirmEvent(schedulerData, eventItem)}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px'
-                    }}
-                >
-                    Confirmer
-                </button>)}
+                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                    Status: {eventItem.Reservation.status}
+                </Typography>
 
-                <button
-                    onClick={() => deleteEvent(schedulerData, eventItem)}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px'
-                    }}
-                >
-                    Supprimer
-                </button>
-            </div>
-        </div>);
+                <Box display="flex" gap={2}>
+                    <Button variant="contained" color="primary" onClick={() => modifyEvent(schedulerData, eventItem)}>
+                        Modifier
+                    </Button>
+
+                    {eventItem.Reservation.status === "Pending" && (
+                        <Button variant="contained" color="success"
+                                onClick={() => confirmEvent(schedulerData, eventItem)}>
+                            Confirmer
+                        </Button>
+                    )}
+
+                    <Button variant="contained" color="error" onClick={() => deleteEvent(schedulerData, eventItem)}>
+                        Supprimer
+                    </Button>
+                </Box>
+            </Box>);
     }
 
     return (<Nav Breadcrumbs={CustomBreadcrumbs}>
