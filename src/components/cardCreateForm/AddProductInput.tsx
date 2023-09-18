@@ -10,6 +10,7 @@ interface Product {
 
 const fetchAllProducts = async () => {
     const response = await fetch(process.env.REACT_APP_API_URL + '/api/product');
+    console.log(response)
     const data = await response.json();
     return data;
 }
@@ -51,7 +52,9 @@ export default function AddProductInput() {
 
     return (
         <Autocomplete
-            id="asynchronous-demo"
+            multiple
+            id="checkboxes-tags-demo"
+            disableCloseOnSelect
             sx={{ width: 300, py: 2 }}
             open={open}
             onOpen={() => {

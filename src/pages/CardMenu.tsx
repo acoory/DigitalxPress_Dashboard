@@ -3,7 +3,7 @@ import Breadcrumbs from "@mui/material/Breadcrumbs";
 import {Typography} from "@mui/material";
 import Nav from "../components/layout/Nav";
 import {MdMenuBook} from "react-icons/md";
-import CardForm from '../components/checkout/CardForm';
+import CardForm from '../components/cardCreateForm/CardForm';
 
 
 const CardMenu = () => {

@@ -6,7 +6,6 @@ import Button from "@mui/material/Button";
 import { List, ListItem, ListItemText } from '@mui/material';
 import {CardMenuContext} from "../../context/CardMenuContext";
 
-
 export default function CategoryPart() {
 
     const [categoryName, setCategoryName] = React.useState('');
