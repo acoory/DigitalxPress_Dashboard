@@ -60,8 +60,8 @@ function CreateReservationModal({isOpen, onClose, data, setData, createReservati
                     margin="dense"
                     label="Email"
                     type="email"
-                    value={data.email}
-                    onChange={(e) => setData({...data, email: e.target.value})}
+                    value={data.email || ""}
+                    onChange={(e) => setData({...data, email: e.target.value || ""})}
                     placeholder="(requis)"
                 />
                 <TextField
@@ -69,16 +69,16 @@ function CreateReservationModal({isOpen, onClose, data, setData, createReservati
                     margin="dense"
                     label="Prénom"
                     type="text"
-                    value={data.firstname}
-                    onChange={(e) => setData({...data, firstname: e.target.value})}
+                    value={data.firstname || ""}
+                    onChange={(e) => setData({...data, firstname: e.target.value || ""})}
                 />
                 <TextField
                     fullWidth
                     margin="dense"
                     label="Nombre de personnes"
                     type="number"
-                    value={data.numberOfPersons}
-                    onChange={(e) => setData({...data, numberOfPersons: parseInt(e.target.value)})}
+                    value={data.numberOfPersons || ""}
+                    onChange={(e) => setData({...data, numberOfPersons: parseInt(e.target.value) || ""})}
                 />
                 <TextField
                     fullWidth
@@ -88,10 +88,10 @@ function CreateReservationModal({isOpen, onClose, data, setData, createReservati
                     InputLabelProps={{
                         shrink: true,
                     }}
-                    value={moment(data.date).format("YYYY-MM-DDTHH:mm:ss")}
+                    value={moment(data.date).format("YYYY-MM-DDTHH:mm:ss") || ""}
                     onChange={(e) => setData({
                         ...data,
-                        date: moment(e.target.value).format("YYYY-MM-DDTHH:mm:ssZ")
+                        date: moment(e.target.value).format("YYYY-MM-DDTHH:mm:ssZ") || ""
                     })}
                 />
             </DialogContent>
@@ -106,25 +106,6 @@ function CreateReservationModal({isOpen, onClose, data, setData, createReservati
 }
 
 function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservation, allTables}) {
-    // modify this state :
-    // {
-    //         id: 0,
-    //         numberOfPersons: 7,
-    //         comment: "",
-    //         tables: [
-    //             11
-    //         ],
-    //         date: "",
-    //         status: "",
-    //         Client: {
-    //             id: 22,
-    //             email: "",
-    //             mobileNumber: "06********",
-    //             firstname: "",
-    //             lastname: ""
-    //         }
-    //     }
-
 
     const [availableTables, setAvailableTables] = useState([]);
 
@@ -179,7 +160,10 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
                 <TextField
                     label="Prénom"
                     value={data.Client.firstname}
-                    onChange={(e) => setData(prev => ({...prev, Client: {...prev.Client, firstname: e.target.value}}))}
+                    onChange={(e) => setData(prev => ({
+                        ...prev,
+                        Client: {...prev.Client, firstname: e.target.value || ""}
+                    }))}
                     fullWidth
                     margin="dense"
                 />
@@ -187,14 +171,17 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
                 <TextField
                     label="Nom de famille"
                     value={data.Client.lastname}
-                    onChange={(e) => setData(prev => ({...prev, Client: {...prev.Client, lastname: e.target.value}}))}
+                    onChange={(e) => setData(prev => ({
+                        ...prev,
+                        Client: {...prev.Client, lastname: e.target.value || ""}
+                    }))}
                     fullWidth
                     margin="dense"
                 />
                 <TextField
                     label="Number of Persons"
                     value={data.numberOfPersons}
-                    onChange={(e) => setData(prev => ({...prev, numberOfPersons: e.target.value}))}
+                    onChange={(e) => setData(prev => ({...prev, numberOfPersons: e.target.value || 1}))}
                     fullWidth
                     margin="dense"
                     type={"number"}
@@ -202,7 +189,7 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
                 <TextField
                     label="Comment"
                     value={data.comment}
-                    onChange={(e) => setData(prev => ({...prev, comment: e.target.value}))}
+                    onChange={(e) => setData(prev => ({...prev, comment: e.target.value || ""}))}
                     fullWidth
                     margin="dense"
                 />
@@ -212,7 +199,7 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
                     value={moment(data.date, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DDTHH:mm")} // Convertissez au format attendu pour l'affichage
                     onChange={(e) => {
                         const formattedDate = moment(e.target.value).format("YYYY-MM-DD HH:mm:ss"); // Convertissez au format que vous utilisez en interne
-                        setData(prev => ({...prev, date: formattedDate}));
+                        setData(prev => ({...prev, date: formattedDate || ""}));
                     }}
                     fullWidth
                     margin="dense"
@@ -236,7 +223,10 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
                 <TextField
                     label="Client Email"
                     value={data.Client.email}
-                    onChange={(e) => setData(prev => ({...prev, Client: {...prev.Client, email: e.target.value}}))}
+                    onChange={(e) => setData(prev => ({
+                        ...prev,
+                        Client: {...prev.Client, email: e.target.value || ""}
+                    }))}
                     fullWidth
                     margin="dense"
                 />
@@ -245,7 +235,7 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
                     value={data.Client.mobileNumber}
                     onChange={(e) => setData(prev => ({
                         ...prev,
-                        Client: {...prev.Client, mobileNumber: e.target.value}
+                        Client: {...prev.Client, mobileNumber: e.target.value || ""}
                     }))}
                     fullWidth
                     margin="dense"
@@ -284,15 +274,8 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
             <DialogActions>
 
                 <Button onClick={() => {
-                    console.log("data in the modal: ", data);
-                    console.log("availableTables: ", availableTables)
-                }} color="primary">
-                    Log
-                </Button>
-
-                <Button onClick={() => {
                     modifyReservation()
-                }} color="primary">
+                }} color="primary" disabled={data.Client.email === ""}>
                     Modifier
                 </Button>
             </DialogActions>
