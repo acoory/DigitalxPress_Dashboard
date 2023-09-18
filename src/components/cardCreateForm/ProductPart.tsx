@@ -1,8 +1,5 @@
 import * as React from 'react';
 import Typography from '@mui/material/Typography';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
 import { CardMenuContext } from "../../context/CardMenuContext";
 import Grid from "@mui/material/Grid";
 import AddProductInputt from "./AddProcutInputt";
@@ -10,7 +7,7 @@ import AddProductInputt from "./AddProcutInputt";
 
 export default function ProductPart() {
 
-    const {categoryList, product, setProduct} = React.useContext(CardMenuContext);
+    const {categoryList} = React.useContext(CardMenuContext);
 
     return (
         <React.Fragment>
