@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import Nav from "../components/layout/Nav";
 import BreadcrumbsComponent from "@mui/material/Breadcrumbs";
-import {Box, TextField, Typography} from "@mui/material";
+import {Box, Chip, FormControl, InputLabel, MenuItem, Select, TextField, Typography} from "@mui/material";
 import {BiTime} from "react-icons/bi";
 import {FaBan, FaCalendarCheck, FaEnvelope, FaPhone, FaUsers} from 'react-icons/fa';
 import Scheduler, {SchedulerData, ViewTypes} from "react-big-scheduler";
@@ -33,18 +33,306 @@ function CustomBreadcrumbs() {
     </BreadcrumbsComponent>);
 }
 
+const getStatusColors = (status) => {
+    switch (status) {
+        case 'Pending':
+            return '#b4891d';
+        case 'Confirmed':
+            return '#28a7a3';
+        default:
+            return ''; // retourne une chaîne vide pour la couleur par défaut
+    }
+};
+
+function CreateReservationModal({isOpen, onClose, data, setData, createReservation}) {
+    return (
+        <Dialog open={isOpen} onClose={onClose}>
+            <DialogTitle>
+                Créer une réservation
+                <IconButton style={{position: 'absolute', top: '10px', right: '10px'}}
+                            onClick={onClose}>
+                    <CloseIcon/>
+                </IconButton>
+            </DialogTitle>
+            <DialogContent>
+                <TextField
+                    fullWidth
+                    margin="dense"
+                    label="Email"
+                    type="email"
+                    value={data.email}
+                    onChange={(e) => setData({...data, email: e.target.value})}
+                />
+                <TextField
+                    fullWidth
+                    margin="dense"
+                    label="Prénom"
+                    type="text"
+                    value={data.firstname}
+                    onChange={(e) => setData({...data, firstname: e.target.value})}
+                />
+                <TextField
+                    fullWidth
+                    margin="dense"
+                    label="Nombre de personnes"
+                    type="number"
+                    value={data.numberOfPersons}
+                    onChange={(e) => setData({...data, numberOfPersons: parseInt(e.target.value)})}
+                />
+                <TextField
+                    fullWidth
+                    margin="dense"
+                    label="Date"
+                    type="datetime-local"
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    value={moment(data.date).format("YYYY-MM-DDTHH:mm:ss")}
+                    onChange={(e) => setData({
+                        ...data,
+                        date: moment(e.target.value).format("YYYY-MM-DDTHH:mm:ssZ")
+                    })}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => createReservation()} color="primary">
+                    Créer
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservation, allTables}) {
+    // modify this state :
+    // {
+    //         id: 0,
+    //         numberOfPersons: 7,
+    //         comment: "",
+    //         tables: [
+    //             11
+    //         ],
+    //         date: "",
+    //         status: "",
+    //         Client: {
+    //             id: 22,
+    //             email: "",
+    //             mobileNumber: "06********",
+    //             firstname: "",
+    //             lastname: ""
+    //         }
+    //     }
+    console.log("data in ModifyReservationModal: ", data)
+    console.log("allTables in ModifyReservationModal: ", allTables)
+
+    const [availableTables, setAvailableTables] = useState([]);
+
+
+    useEffect(() => {
+        // Charger les tables disponibles depuis l'API
+        Api.instance.get('api/reservation/available_tables/' + moment(data.date).format("YYYY-MM-DDTHH:mm:ssZ"))
+            .then(response => {
+                const apiTableIds = response.data.map(table => table.id); // Extrait seulement les IDs
+                // Fusionner les IDs de tables de l'API avec les tables sélectionnées
+                const mergedTables = [...new Set([...apiTableIds, ...data.tables])];
+                setAvailableTables(mergedTables);
+            })
+            .catch(error => {
+                console.error("Error fetching available tables:", error);
+            });
+    }, [data.date, data.tables]);
+
+    const isTableAvailable = (tableId) => {
+        return availableTables.includes(tableId);
+    }
+
+    const toggleTableSelection = (tableId) => {
+        if (data.tables.includes(tableId)) {
+            setData(prevData => ({
+                ...prevData,
+                tables: prevData.tables.filter(id => id !== tableId)
+            }));
+        } else {
+            setData(prevData => ({
+                ...prevData,
+                tables: [...prevData.tables, tableId]
+            }));
+        }
+        console.log("data.tables: ", data.tables)
+    };
+    return (
+        <Dialog open={isOpen} onClose={onClose}>
+            <DialogTitle>
+                Modifier la reservation de {data.Client.firstname} {data.Client.lastname}
+                <IconButton style={{position: 'absolute', top: '10px', right: '10px'}}
+                            onClick={onClose}>
+                    <CloseIcon/>
+                </IconButton>
+            </DialogTitle>
+
+            <DialogContent>
+                <TextField
+                    label="Prénom"
+                    value={data.Client.firstname}
+                    onChange={(e) => setData(prev => ({...prev, Client: {...prev.Client, firstname: e.target.value}}))}
+                    fullWidth
+                    margin="dense"
+                />
+
+                <TextField
+                    label="Nom de famille"
+                    value={data.Client.lastname}
+                    onChange={(e) => setData(prev => ({...prev, Client: {...prev.Client, lastname: e.target.value}}))}
+                    fullWidth
+                    margin="dense"
+                />
+                <TextField
+                    label="Number of Persons"
+                    value={data.numberOfPersons}
+                    onChange={(e) => setData(prev => ({...prev, numberOfPersons: e.target.value}))}
+                    fullWidth
+                    margin="dense"
+                />
+                <TextField
+                    label="Comment"
+                    value={data.comment}
+                    onChange={(e) => setData(prev => ({...prev, comment: e.target.value}))}
+                    fullWidth
+                    margin="dense"
+                />
+                <TextField
+                    label="Date et Heure"
+                    type="datetime-local"
+                    value={moment(data.date, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DDTHH:mm")} // Convertissez au format attendu pour l'affichage
+                    onChange={(e) => {
+                        const formattedDate = moment(e.target.value).format("YYYY-MM-DD HH:mm:ss"); // Convertissez au format que vous utilisez en interne
+                        setData(prev => ({...prev, date: formattedDate}));
+                    }}
+                    fullWidth
+                    margin="dense"
+                    inputProps={{
+                        step: 900, // Pour les intervalles de 15 minutes
+                    }}
+                />
+
+
+                <FormControl fullWidth margin="dense">
+                    <InputLabel>Status</InputLabel>
+                    <Select
+                        value={data.status}
+                        onChange={(e) => setData(prev => ({...prev, status: e.target.value}))}
+                    >
+                        <MenuItem value="Pending">En attente</MenuItem>
+                        <MenuItem value="Confirmed">Confirmé</MenuItem>
+                    </Select>
+                </FormControl>
+
+                <TextField
+                    label="Client Email"
+                    value={data.Client.email}
+                    onChange={(e) => setData(prev => ({...prev, Client: {...prev.Client, email: e.target.value}}))}
+                    fullWidth
+                    margin="dense"
+                />
+                <TextField
+                    label="Mobile Number"
+                    value={data.Client.mobileNumber}
+                    onChange={(e) => setData(prev => ({
+                        ...prev,
+                        Client: {...prev.Client, mobileNumber: e.target.value}
+                    }))}
+                    fullWidth
+                    margin="dense"
+                />
+
+                <Box marginBottom={2}>
+                    <Typography variant="subtitle2" gutterBottom>
+                        Tables associées:
+                    </Typography>
+                    <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+                        {allTables.map((table) => {
+                            const isSelected = data.tables.includes(table.id);
+                            const tableAvailable = isTableAvailable(table.id);
+                            return (
+                                <Chip
+                                    key={table.id}
+                                    label={table.name}
+                                    clickable
+                                    size="small"
+                                    style={{
+                                        margin: '4px',
+                                        borderRadius: '8px',
+                                        backgroundColor: isSelected ? getStatusColors(data.status) : '',
+                                        color: isSelected ? 'white' : '',
+                                        textDecoration: !tableAvailable ? 'line-through' : '' // Modification ici
+                                    }}
+                                    onClick={() => toggleTableSelection(table.id)}
+                                />
+                            );
+                        })}
+                    </Box>
+                </Box>
+            </DialogContent>
+
+
+            <DialogActions>
+                <Button onClick={() => {
+                    console.log("data in available tables: ", availableTables)
+                }} color="primary">
+                    Modifier
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
 
 function Reservation() {
-    let schedulerData = new SchedulerData(moment().format('YYYY-MM-DD'), ViewTypes.Day);
-    schedulerData.localeMoment(moment.toString());
+    const schedulerTest = new SchedulerData(moment().format("YYYY-MM-DD"),
+        ViewTypes.Day,
+        false,
+        false,
+        {
+            dayStartFrom: 8,
+            dayStopTo: 23,
+        });
+
+    console.log("the content of schedulerTest: ", schedulerTest);
 
     const [resources, setResources] = useState([]);
     const [events, setEvents] = useState([]);
-    const [viewModel, setViewModel] = useState(new SchedulerData(moment().format("YYYY-MM-DD"), ViewTypes.Day));
+    const [viewModel, setViewModel] = useState(new SchedulerData(moment().format("YYYY-MM-DD"),
+        ViewTypes.Day,
+        false,
+        false,
+        {
+            dayStartFrom: 8,
+            dayStopTo: 23,
+        }));
+
 
     const [isModalCreateReservationOpen, setIsModalCreateReservationOpen] = useState(false);
     const [dataModalCreateReservation, setDataModalCreateReservation] = useState({
         email: "", date: "", firstname: "", lastname: "", numberOfPersons: 1
+    });
+
+    const [isModalModifyReservationOpen, setIsModalModifyReservationOpen] = useState(false);
+    const [dataModalModifyReservation, setDataModalModifyReservation] = useState({
+        id: 0,
+        numberOfPersons: 7,
+        comment: "",
+        tables: [
+            11
+        ],
+        date: "",
+        status: "",
+        Client: {
+            id: 22,
+            email: "",
+            mobileNumber: "06********",
+            firstname: "",
+            lastname: ""
+        }
     });
 
     useEffect(() => {
@@ -101,7 +389,10 @@ function Reservation() {
             .then((response) => {
                 const result = response.data.map((table) => {
                     return {
-                        id: table.id, name: table.name + " (" + table.capacity + ")",
+                        id: table.id,
+                        name: table.name + " (" + table.capacity + " pers.)",
+                        trueName: table.name,
+                        capacity: table.capacity,
                     }
                 });
                 setResources(result);
@@ -143,7 +434,12 @@ function Reservation() {
     }
 
     function onViewChange(schedulerData, view) {
-        let newSchedulerData = new SchedulerData(schedulerData.startDate, view.viewType, schedulerData.isEventPerspective);
+        let newSchedulerData = new SchedulerData(schedulerData.startDate, view.viewType, false, false, {
+            agendaResourceTableWidth: 1600,
+            dayStartFrom: 8,
+            dayStopTo: 23,
+        });
+        newSchedulerData.setViewType(view.viewType)
         newSchedulerData.setResources(resources);
         newSchedulerData.setEvents(events);
         setViewModel(newSchedulerData);
@@ -198,6 +494,12 @@ function Reservation() {
 
     }
 
+    function modifyReservation() {
+        console.log("modifyReservation has been called!")
+        console.log("Here is the dataModalModifyReservation: ", dataModalModifyReservation)
+        let newEvents = [];
+    }
+
     function newEvent(schedulerData, slotId, slotName, start, end, type, item) {
         setDataModalCreateReservation({
             ...dataModalCreateReservation, date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ")
@@ -245,7 +547,27 @@ function Reservation() {
     }
 
     function modifyEvent(schedulerData, event) {
-        console.log("modify event clicked")
+        setDataModalModifyReservation(
+            {
+                id: event.Reservation.id,
+                numberOfPersons: event.Reservation.numberOfPerson,
+                comment: event.Reservation.comment,
+                tables: events.filter((e) => e.Reservation.id === event.Reservation.id).map((e) => e.Table.id),
+                date: event.start,
+                status: event.Reservation.status,
+                Client: {
+                    id: event.Client.clientId,
+                    email: event.Client.email,
+                    mobileNumber: event.Client.mobileNumber,
+                    firstname: event.Client.firstname,
+                    lastname: event.Client.lastname
+                }
+            }
+        )
+
+        // open the modal
+        setIsModalModifyReservationOpen(true);
+
     }
 
     function confirmEvent(schedulerData, event) {
@@ -404,87 +726,44 @@ function Reservation() {
             </Box>);
     }
 
-    return (<Nav Breadcrumbs={CustomBreadcrumbs}>
+    return (
+        <Nav Breadcrumbs={CustomBreadcrumbs}>
 
-        {isModalCreateReservationOpen && (
-            <Dialog open={isModalCreateReservationOpen} onClose={() => cleanModalCreateReservation()}>
-                <DialogTitle>
-                    Créer une réservation
-                    <IconButton style={{position: 'absolute', top: '10px', right: '10px'}}
-                                onClick={() => setIsModalCreateReservationOpen(false)}>
-                        <CloseIcon/>
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent>
-                    <TextField
-                        fullWidth
-                        margin="dense"
-                        label="Email"
-                        type="email"
-                        value={dataModalCreateReservation.email}
-                        onChange={(e) => setDataModalCreateReservation({
-                            ...dataModalCreateReservation, email: e.target.value
-                        })}
-                    />
-                    <TextField
-                        fullWidth
-                        margin="dense"
-                        label="Prénom"
-                        type="text"
-                        value={dataModalCreateReservation.firstname}
-                        onChange={(e) => setDataModalCreateReservation({
-                            ...dataModalCreateReservation, firstname: e.target.value
-                        })}
-                    />
-                    <TextField
-                        fullWidth
-                        margin="dense"
-                        label="Nombre de personnes"
-                        type="number"
-                        value={dataModalCreateReservation.numberOfPersons}
-                        onChange={(e) => setDataModalCreateReservation({
-                            ...dataModalCreateReservation, numberOfPersons: parseInt(e.target.value)
-                        })}
-                    />
-                    <TextField
-                        fullWidth
-                        margin="dense"
-                        label="Date"
-                        type="datetime-local"
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        value={moment(dataModalCreateReservation.date).format("YYYY-MM-DDTHH:mm:ss")}
-                        onChange={(e) => setDataModalCreateReservation({
-                            ...dataModalCreateReservation, date: moment(e.target.value).format("YYYY-MM-DDTHH:mm:ssZ")
-                        })}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => createReservation()} color="primary">
-                        Créer
-                    </Button>
-                </DialogActions>
-            </Dialog>)}
+            <CreateReservationModal
+                isOpen={isModalCreateReservationOpen}
+                onClose={cleanModalCreateReservation}
+                data={dataModalCreateReservation}
+                setData={setDataModalCreateReservation}
+                createReservation={createReservation}
+            />
+
+            <ModifyReservationModal
+                isOpen={isModalModifyReservationOpen}
+                onClose={() => setIsModalModifyReservationOpen(false)}
+                data={dataModalModifyReservation}
+                setData={setDataModalModifyReservation}
+                modifyReservation={() => modifyReservation()}
+                allTables={resources}
+            />
 
 
-        <Scheduler
-            schedulerData={viewModel}
-            nextClick={nextClick}
-            onSelectDate={onSelectDate}
-            onViewChange={onViewChange}
-            prevClick={prevClick}
+            <Scheduler
+                schedulerData={viewModel}
+                nextClick={nextClick}
+                onSelectDate={onSelectDate}
+                onViewChange={onViewChange}
+                prevClick={prevClick}
 
-            eventItemClick={(schedulerData, event) => {
-                console.log(event);
-            }}
-            newEvent={newEvent}
+                eventItemClick={(schedulerData, event) => {
+                    console.log(event);
+                }}
+                newEvent={newEvent}
 
-            moveEvent={moveEvent}
+                moveEvent={moveEvent}
 
-            eventItemPopoverTemplateResolver={eventItemPopoverTemplateResolver}
-        />
-    </Nav>);
+                eventItemPopoverTemplateResolver={eventItemPopoverTemplateResolver}
+            />
+        </Nav>);
 }
 
 
