@@ -62,6 +62,7 @@ function CreateReservationModal({isOpen, onClose, data, setData, createReservati
                     type="email"
                     value={data.email}
                     onChange={(e) => setData({...data, email: e.target.value})}
+                    placeholder="(requis)"
                 />
                 <TextField
                     fullWidth
@@ -95,12 +96,13 @@ function CreateReservationModal({isOpen, onClose, data, setData, createReservati
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => createReservation()} color="primary">
+                <Button onClick={() => createReservation()} color="primary" disabled={data.email === ""}>
                     Créer
                 </Button>
             </DialogActions>
         </Dialog>
-    );
+    )
+        ;
 }
 
 function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservation, allTables}) {
@@ -129,17 +131,21 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
 
     useEffect(() => {
         // Charger les tables disponibles depuis l'API
-        Api.instance.get('api/reservation/available_tables/' + moment(data.date).format("YYYY-MM-DDTHH:mm:ssZ"))
-            .then(response => {
-                const apiTableIds = response.data.map(table => table.id); // Extrait seulement les IDs
-                // Fusionner les IDs de tables de l'API avec les tables sélectionnées
-                const mergedTables = [...new Set([...apiTableIds, ...data.tables])];
-                setAvailableTables(mergedTables);
-            })
-            .catch(error => {
-                console.error("Error fetching available tables:", error);
-            });
-    }, [data.date, data.tables]);
+        if (moment(data.date).isValid()) {
+            Api.instance.get('api/reservation/available_tables/' + moment(data.date).format("YYYY-MM-DDTHH:mm:ssZ"))
+                .then(response => {
+                    const apiTableIds = response.data.map(table => table.id); // Extrait seulement les IDs
+                    // Fusionner les IDs de tables de l'API avec les tables sélectionnées
+                    const mergedTables = [...new Set([...apiTableIds, ...data.tables])];
+                    setAvailableTables(mergedTables);
+                })
+                .catch(error => {
+                    console.error("Error fetching available tables:", error);
+                });
+        } else {
+            console.log("Invalid date during useEffect in ModifyReservationModal");
+        }
+    }, [data]);
 
     const isTableAvailable = (tableId) => {
         return availableTables.includes(tableId);
@@ -276,8 +282,15 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
 
 
             <DialogActions>
+
                 <Button onClick={() => {
-                    console.log("data in ModifyReservationModal: ", data)
+                    console.log("data in the modal: ", data);
+                    console.log("availableTables: ", availableTables)
+                }} color="primary">
+                    Log
+                </Button>
+
+                <Button onClick={() => {
                     modifyReservation()
                 }} color="primary">
                     Modifier
@@ -289,16 +302,6 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
 
 
 function Reservation() {
-    const schedulerTest = new SchedulerData(moment().format("YYYY-MM-DD"),
-        ViewTypes.Day,
-        false,
-        false,
-        {
-            dayStartFrom: 8,
-            dayStopTo: 23,
-        });
-
-    console.log("the content of schedulerTest: ", schedulerTest);
 
     const [resources, setResources] = useState([]);
     const [events, setEvents] = useState([]);
@@ -361,7 +364,7 @@ function Reservation() {
                             title: reservation.Client.firstname + " " + reservation.Client.lastname,
                             bgColor: reservation.status === "Confirmed" ? '#28a7a3' : reservation.status === "Pending" ? '#b4891d' : '#dc3545',
                             Client: {
-                                clientId: reservation.Client.id,
+                                id: reservation.Client.id,
                                 firstname: reservation.Client.firstname,
                                 lastname: reservation.Client.lastname,
                                 email: reservation.Client.email,
@@ -464,7 +467,7 @@ function Reservation() {
                         title: response.data.Client.firstname + " " + response.data.Client.lastname,
                         bgColor: response.data.status === "Confirmed" ? '#28a7a3' : response.data.status === "Pending" ? '#b4891d' : '#dc3545',
                         Client: {
-                            clientId: response.data.Client.id,
+                            id: response.data.Client.id,
                             firstname: response.data.Client.firstname,
                             lastname: response.data.Client.lastname,
                             email: response.data.Client.email,
@@ -523,7 +526,7 @@ function Reservation() {
                         title: response.data.Client.firstname + " " + response.data.Client.lastname,
                         bgColor: response.data.status === "Confirmed" ? '#28a7a3' : response.data.status === "Pending" ? '#b4891d' : '#dc3545',
                         Client: {
-                            clientId: response.data.Client.id,
+                            id: response.data.Client.id,
                             firstname: response.data.Client.firstname,
                             lastname: response.data.Client.lastname,
                             email: response.data.Client.email,
@@ -600,28 +603,26 @@ function Reservation() {
     }
 
     function modifyEvent(schedulerData, event) {
-        setDataModalModifyReservation(
-            {
-                id: event.Reservation.id,
-                numberOfPersons: event.Reservation.numberOfPerson,
-                comment: event.Reservation.comment,
-                tables: events.filter((e) => e.Reservation.id === event.Reservation.id).map((e) => e.Table.id),
-                date: event.start,
-                status: event.Reservation.status,
-                Client: {
-                    id: event.Client.clientId,
-                    email: event.Client.email,
-                    mobileNumber: event.Client.mobileNumber,
-                    firstname: event.Client.firstname,
-                    lastname: event.Client.lastname
-                }
+        setDataModalModifyReservation({
+            id: event.Reservation.id,
+            numberOfPersons: event.Reservation.numberOfPerson || "",
+            comment: event.Reservation.comment || "",
+            tables: events.filter((e) => e.Reservation.id === event.Reservation.id).map((e) => e.Table.id),
+            date: event.start,
+            status: event.Reservation.status || "",
+            Client: {
+                id: event.Client.id,
+                email: event.Client.email || "",
+                mobileNumber: event.Client.mobileNumber || "",
+                firstname: event.Client.firstname || "",
+                lastname: event.Client.lastname || ""
             }
-        )
+        })
 
         // open the modal
         setIsModalModifyReservationOpen(true);
-
     }
+
 
     function confirmEvent(schedulerData, event) {
         console.log("confirm event clicked")
@@ -816,6 +817,11 @@ function Reservation() {
 
                 eventItemPopoverTemplateResolver={eventItemPopoverTemplateResolver}
             />
+
+            <Button variant="contained" color="primary" onClick={() => console.log(events)}>
+                Log le state events
+            </Button>
+
         </Nav>);
 }
 
