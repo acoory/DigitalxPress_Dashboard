@@ -140,7 +140,7 @@ export default function Horaire_test() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/api/opening-hour")
+      .get(process.env.REACT_APP_API_URL + "/api/opening-hour")
       .then((response) => {
         console.log("response ", response.data);
         // le get : {name: 'a', start_at: '1970-01-01T12:26:29.000Z', end_at: '1970-01-01T13:25:29.000Z', days: Array(2)
@@ -207,7 +207,7 @@ export default function Horaire_test() {
     console.log("Time slots JSON exported:", timeSlotsString);
     try {
       const response = await fetch(
-        "http://localhost:3000/api/opening-hour/update",
+          process.env.REACT_APP_API_URL + "/api/opening-hour/update",
         {
           method: "POST",
           headers: {

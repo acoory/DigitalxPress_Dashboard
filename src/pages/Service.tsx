@@ -137,7 +137,7 @@ function Service() {
   
     useEffect(() => {
       axios
-        .get("http://localhost:3000/api/service")
+        .get(process.env.REACT_APP_API_URL + "/api/service")
         .then((response) => {
           console.log("response ", response.data);
           // le get : {name: 'a', start_at: '1970-01-01T12:26:29.000Z', end_at: '1970-01-01T13:25:29.000Z', days: Array(2)
@@ -204,7 +204,7 @@ function Service() {
       console.log("Time slots JSON exported:", timeSlotsString);
       try {
         const response = await fetch(
-          "http://localhost:3000/api/service/update",
+            process.env.REACT_APP_API_URL + "/api/service/update",
           {
             method: "POST",
             headers: {
