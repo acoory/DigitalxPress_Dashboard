@@ -122,8 +122,7 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
     //             lastname: ""
     //         }
     //     }
-    console.log("data in ModifyReservationModal: ", data)
-    console.log("allTables in ModifyReservationModal: ", allTables)
+
 
     const [availableTables, setAvailableTables] = useState([]);
 
@@ -163,7 +162,7 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
     return (
         <Dialog open={isOpen} onClose={onClose}>
             <DialogTitle>
-                Modifier la reservation de {data.Client.firstname} {data.Client.lastname}
+                Modifier la reservation de {data.Client.firstname} {data.Client.lastname} (id: {data.id})
                 <IconButton style={{position: 'absolute', top: '10px', right: '10px'}}
                             onClick={onClose}>
                     <CloseIcon/>
