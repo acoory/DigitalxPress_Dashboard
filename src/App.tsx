@@ -47,60 +47,6 @@ function App() {
     checkUser();
   }, []);
 
-    return (
-        <Routes>
-            <Route path="/" element={<Login/>}/>
-            <Route
-                path="/dashboard"
-                element={
-                    <PrivateRoute isAuthenticated={isAuthenticated}>
-                        <Dashboard/>
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/logout"
-                element={
-                    <PrivateRoute isAuthenticated={isAuthenticated}>
-                        <Logout/>
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/reservations"
-                element={
-                    <PrivateRoute isAuthenticated={isAuthenticated}>
-                        <Reservation/>
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/profile"
-                element={
-                    <PrivateRoute isAuthenticated={isAuthenticated}>
-                        <Profil/>
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/horaires_services"
-                element={
-                    <PrivateRoute isAuthenticated={isAuthenticated}>
-                        <Horaires_Services/>
-                    </PrivateRoute>
-                }
-            />
-
-            <Route
-                path="cartes_menus"
-                element={
-                    <PrivateRoute isAuthenticated={isAuthenticated}>
-                        <CardMenu/>
-                    </PrivateRoute>
-                }
-            />
-        </Routes>
-    );
   return (
     <Routes>
       <Route path="/" element={<Login />} />
@@ -160,7 +106,16 @@ function App() {
           </PrivateRoute>
         }
       />
+        <Route
+            path={"/cartes_menus"}
+            element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                    <CardMenu />
+                </PrivateRoute>
+            }
+        />
     </Routes>
+
   );
 }
 

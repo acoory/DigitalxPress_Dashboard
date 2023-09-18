@@ -48,7 +48,7 @@ export default function Table() {
   const handleCreateTable = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/table",
+        "http://localhost:3002/api/table",
         {
           name: tableName,
           capacity: parseInt(tableCapacity),
@@ -77,7 +77,7 @@ export default function Table() {
   };
   const fetchTables = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/table", {
+      const response = await axios.get("http://localhost:3002/api/table", {
         withCredentials: true, // Active la gestion des cookies
       });
       if (response.status === 200) {
@@ -98,7 +98,7 @@ export default function Table() {
   const handleDeleteTable = async (id: number) => {
     try {
       const response = await axios.delete(
-        `http://localhost:3000/api/table/${id}`,
+        `http://localhost:3002/api/table/${id}`,
         {
           withCredentials: true,
         }
@@ -128,7 +128,7 @@ export default function Table() {
 
     try {
       const response = await axios.put(
-        `http://localhost:3000/api/table/${id}`,
+        `http://localhost:3002/api/table/${id}`,
         editingTable, // Utilisez les données mises à jour
         {
           withCredentials: true,
