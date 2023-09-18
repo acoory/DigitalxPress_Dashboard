@@ -1,37 +1,28 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Toolbar from '@mui/material/Toolbar';
-import Paper from '@mui/material/Paper';
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
-import Button from '@mui/material/Button';
-import Link from '@mui/material/Link';
-import Typography from '@mui/material/Typography';
-import CardInfoForm from './CardInfoForm';
-import CategoryForm from './CategoryForm';
-import Review from './Review';
+import {AppBar, Box, Container, Toolbar, Paper, Stepper, Step, StepLabel, Button, Typography,} from '@mui/material';
+import CardInfoPart from './CardInfoPart';
+import CategoryPart from './CategoryPart';
+import ProductPart from './ProductPart';
+import {CardMenuConsumer} from "../../context/CardMenuContext";
 
 const steps = ['Carte', 'Catégories', 'Produits'];
 
 function getStepContent(step: number) {
     switch (step) {
         case 0:
-            return <CardInfoForm />;
+            return <CardInfoPart />;
         case 1:
-            return <CategoryForm />;
+            return <CategoryPart />;
         case 2:
-            return <Review />;
+            return <ProductPart />;
         default:
             throw new Error('Unknown step');
     }
 }
 
-export default function Checkout() {
-    const [activeStep, setActiveStep] = React.useState(0);
+export default function CardForm() {
+    const [activeStep, setActiveStep] = useState(0);
 
     const handleNext = () => {
         setActiveStep(activeStep + 1);
@@ -43,6 +34,7 @@ export default function Checkout() {
 
     return (
         <React.Fragment>
+            <CardMenuConsumer>
             <CssBaseline />
             <AppBar
                 position="absolute"
@@ -54,10 +46,7 @@ export default function Checkout() {
                 }}
             >
                 <Toolbar>
-                    <Button
-                        variant="contained"
-                        sx={{ my: 2, ml: 1 }}
-                    >
+                    <Button variant="contained" sx={{ my: 2, ml: 1 }}>
                         Créer une carte
                     </Button>
                 </Toolbar>
@@ -101,6 +90,7 @@ export default function Checkout() {
                     )}
                 </Paper>
             </Container>
+            </CardMenuConsumer>
         </React.Fragment>
     );
 }

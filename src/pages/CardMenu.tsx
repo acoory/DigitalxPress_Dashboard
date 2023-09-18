@@ -3,8 +3,7 @@ import Breadcrumbs from "@mui/material/Breadcrumbs";
 import {Typography} from "@mui/material";
 import Nav from "../components/layout/Nav";
 import {MdMenuBook} from "react-icons/md";
-import Checkout from '../components/checkout/Checkout';
-
+import CardForm from '../components/checkout/CardForm';
 
 
 const CardMenu = () => {
@@ -25,7 +24,7 @@ const CardMenu = () => {
                 </Breadcrumbs>
             )}
         >
-            <Checkout/>
+            <CardForm/>
         </Nav>
     );
 };

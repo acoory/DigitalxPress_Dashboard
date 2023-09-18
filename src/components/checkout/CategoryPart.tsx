@@ -3,12 +3,14 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Button from "@mui/material/Button";
-import {List, ListItem, ListItemText } from '@mui/material';
+import { List, ListItem, ListItemText } from '@mui/material';
+import {CardMenuContext} from "../../context/CardMenuContext";
 
-export default function CategoryForm() {
+
+export default function CategoryPart() {
 
     const [categoryName, setCategoryName] = React.useState('');
-    const [categoryList, setCategoryList]: any = React.useState([]);
+    const {categoryList, setCategoryList} = React.useContext(CardMenuContext);
 
     const handleAddCategory = () => {
         setCategoryList([...categoryList, categoryName]);
@@ -27,19 +29,24 @@ export default function CategoryForm() {
 
     return (
         <React.Fragment>
-
             <Typography variant="h6" gutterBottom>
                 Catégorie
             </Typography>
 
             <Grid container spacing={3}>
-
                 <Grid item xs={12} md={6}>
                     <TextField
-                        id="categorName"
+                        id="categoryName"
                         label="Nom de la catégorie"
                         fullWidth
                         variant="standard"
+                        value={categoryName}
+                        onChange={handleCategoryNameChange}
+                        onKeyUp={(ev) => {
+                            if (ev.key === 'Enter') {
+                                handleAddCategory();
+                            }
+                        }}
                     />
                 </Grid>
 
@@ -48,38 +55,35 @@ export default function CategoryForm() {
                         variant="outlined"
                         size="small"
                         sx={{ my: 2.5, ml: 1 }}
+                        onClick={handleAddCategory}
                     >
                         Ajouter
                     </Button>
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-
                     <Typography variant="subtitle2">
                         Catégories ajoutées :
                     </Typography>
-
-                    <List sx = {{
-                        listStyleType: 'disc',
-                        pl: 2,
-                        pt: 0,
-                    }}>
-                        <ListItem sx={{ display: 'list-item', pl: 0 }}>
-                            {
-                                categoryList.map((category: string, index: number) => (
-                                    <ListItemText key={index} primary={category} secondary={
+                    <List sx={{ listStyleType: 'disc', pt: 0 }}>
+                        {categoryList.map((category: string, index: number) => (
+                            <ListItem key={index} sx={{ pl: 0}}>
+                                <Grid container alignItems="center" spacing={2}>
+                                    <Grid item xs={8} style={{ maxWidth: 'calc(100% - 48px)' }}>
+                                        <ListItemText primary={category} />
+                                    </Grid>
+                                    <Grid item xs={4}>
                                         <Button
                                             variant="outlined"
                                             size="small"
-                                            sx={{ my: 2.5, ml: 1 }}
                                             onClick={() => handleDeleteCategory(index)}
                                         >
                                             Supprimer
                                         </Button>
-                                    } />
-                                ))
-                            }
-                        </ListItem>
+                                    </Grid>
+                                </Grid>
+                            </ListItem>
+                        ))}
                     </List>
 
                 </Grid>
