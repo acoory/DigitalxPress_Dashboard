@@ -8,4 +8,15 @@ export class ReservationService {
     this.api = Api;
     this.instance = this.api.instance;
   }
+
+  async getAll() {
+    try {
+      const response = await this.instance.get("/api/reservation", {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      // throw new Error(error);
+    }
+  }
 }
