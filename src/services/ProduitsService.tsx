@@ -102,4 +102,15 @@ export class ProduitsService {
       // throw new Error(error);
     }
   }
+
+  async addProduct(data: any) {
+    try {
+      const response = await this.instance.post("/api/product", data, {
+        withCredentials: true,
+      });
+      return response;
+    } catch (error) {
+      // throw new Error(error);
+    }
+  }
 }
