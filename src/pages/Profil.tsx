@@ -7,11 +7,24 @@ import { UserContext } from "../context/UserContext";
 import AdminService from "../services/AdminService";
 import adminService from "../services/AdminService";
 import { Modal, Box } from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
 
 export default function Profil() {
   const { user } = useContext(UserContext);
-  const [open, setOpen] = React.useState(false);
+  const [openModal, setOpenModal] = React.useState(false);
+  const [state, setState] = React.useState({
+    open: false,
+    vertical: "top",
+    horizontal: "right",
+    message: "",
+  });
+
+  const { vertical, horizontal, open } = state;
   console.log(user);
+
+  const handleClose = () => {
+    setState({ ...state, open: false });
+  };
 
   const style = {
     position: "absolute",
@@ -55,6 +68,20 @@ export default function Profil() {
         mobileNumber: res.data?.mobileNumber || "",
         email: res.data?.email || "",
       });
+
+      setState({
+        ...state,
+        open: true,
+        message: "Profil modifié avec succès",
+      });
+
+      setTimeout(() => {
+        setState({
+          ...state,
+          open: false,
+          message: "",
+        });
+      }, 4000);
     });
   };
 
@@ -75,6 +102,12 @@ export default function Profil() {
         </Breadcrumbs>
       )}
     >
+      <Snackbar
+        open={open}
+        onClose={handleClose}
+        message={state.message}
+        key={vertical + horizontal}
+      />
       <div className="m-[20px]">
         <h1 className="font-[700] text-[#344767]">Profile</h1>
         <p className="text-[#666666] font-[300] mt-[10px] text-[14px]">
@@ -143,7 +176,7 @@ export default function Profil() {
                   Mot de passe
                 </label>
                 <button
-                  onClick={() => setOpen(true)}
+                  onClick={() => setOpenModal(true)}
                   className="bg-[#202020] w-fit flex flex-row pl-5 pr-5 pt-[8px] pb-[8px] rounded-md text-white items-center text-[13px]"
                 >
                   Modifier le mot de passe
@@ -172,8 +205,8 @@ export default function Profil() {
         </div>
       </div>
       <Modal
-        open={open}
-        onClose={() => setOpen(false)}
+        open={openModal}
+        onClose={() => setOpenModal(false)}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -195,7 +228,20 @@ export default function Profil() {
                   })
                   .then((res) => {
                     if (res.status === 200) {
-                      setOpen(false);
+                      setState({
+                        ...state,
+                        open: true,
+                        message: "Mot de passe modifié avec succès",
+                      });
+                      setOpenModal(false);
+
+                      setTimeout(() => {
+                        setState({
+                          ...state,
+                          open: false,
+                          message: "",
+                        });
+                      }, 4000);
                     }
                   });
               }}
