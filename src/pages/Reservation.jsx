@@ -192,6 +192,7 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
                     onChange={(e) => setData(prev => ({...prev, numberOfPersons: e.target.value}))}
                     fullWidth
                     margin="dense"
+                    type={"number"}
                 />
                 <TextField
                     label="Comment"
@@ -277,7 +278,8 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
 
             <DialogActions>
                 <Button onClick={() => {
-                    console.log("data in available tables: ", availableTables)
+                    console.log("data in ModifyReservationModal: ", data)
+                    modifyReservation()
                 }} color="primary">
                     Modifier
                 </Button>
@@ -497,7 +499,59 @@ function Reservation() {
     function modifyReservation() {
         console.log("modifyReservation has been called!")
         console.log("Here is the dataModalModifyReservation: ", dataModalModifyReservation)
+        const dataToSend = dataModalModifyReservation
+        // put date in the correct format
+        dataToSend.date = moment(dataToSend.date).format("YYYY-MM-DDTHH:mm:ssZ")
+        dataToSend.tables = dataToSend.tables.map((tableId) => {
+            return tableId
+        })
+        dataToSend.numberOfPersons = parseInt(dataToSend.numberOfPersons)
         let newEvents = [];
+
+        Api.instance.put("/api/reservation/" + dataModalModifyReservation.id, dataToSend)
+            .then((response) => {
+                // delete old events with the same reservationId
+                setEvents((events) => events.filter((e) => e.Reservation.id !== response.data.id));
+
+                // set the new events
+                newEvents = response.data.Reserved.map((reserved) => {
+                    let newEvent = {
+                        resourceId: reserved.Table.id,
+                        id: reserved.id,
+                        ReservationId: response.data.id,
+                        start: moment(response.data.date).format("YYYY-MM-DD HH:mm:ss"),
+                        end: moment(response.data.date).add(1, 'hours').add(30, 'minutes').format("YYYY-MM-DD HH:mm:ss"),
+                        title: response.data.Client.firstname + " " + response.data.Client.lastname,
+                        bgColor: response.data.status === "Confirmed" ? '#28a7a3' : response.data.status === "Pending" ? '#b4891d' : '#dc3545',
+                        Client: {
+                            clientId: response.data.Client.id,
+                            firstname: response.data.Client.firstname,
+                            lastname: response.data.Client.lastname,
+                            email: response.data.Client.email,
+                            mobileNumber: response.data.Client.mobileNumber,
+                            count_no_shows: response.data.Client.count_no_shows,
+                            count_reservations: response.data.Client.count_reservations
+                        },
+                        Table: {
+                            id: reserved.Table.id, name: reserved.Table.name, capacity: reserved.Table.capacity
+                        },
+                        Reservation: {
+                            id: response.data.id,
+                            numberOfPerson: response.data.numberOfPersons,
+                            comment: response.data.comment,
+                            status: response.data.status
+                        },
+                        resizable: false
+                    };
+                    return newEvent;
+                });
+                setEvents((events) => [...events, ...newEvents]);
+                setIsModalModifyReservationOpen(false);
+            })
+            .catch((error) => {
+                console.error("Erreur lors de la récupération des données:", error);
+            });
+
     }
 
     function newEvent(schedulerData, slotId, slotName, start, end, type, item) {
