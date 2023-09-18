@@ -5,6 +5,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import {useEffect} from "react";
+import axios from "axios";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -14,8 +15,52 @@ interface Product {
     price: number;
 }
 
-const fetchAllProducts = async () => {
+export const fetchAllProducts = async () => {
     const response = await fetch(process.env.REACT_APP_API_URL + '/api/product');
+    const data = await response.json();
+    return data;
+}
+
+export const fetchCreateCard = async (cardName: string, cardDescription: string) => {
+    const response = await axios.post(
+        process.env.REACT_APP_API_URL + "/api/card",
+        {
+            name: cardName,
+            description: cardDescription,
+        },
+        {
+            withCredentials: true, // Active la gestion des cookies
+        }
+    );
+    return response;
+}
+
+export const fetchCreateCategory = async (categoryName: string) => {
+    const response = await fetch(process.env.REACT_APP_API_URL + '/api/category', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: categoryName,
+        })
+    });
+    const data = await response.json();
+    return data;
+}
+
+export const fetchCreateCardProduct = async (cardId: number, productId: number, categoryId: number) => {
+    const response = await fetch(process.env.REACT_APP_API_URL + '/api/card-product', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            cardId: cardId,
+            categoryId: categoryId,
+            productId: productId
+        })
+    });
     const data = await response.json();
     return data;
 }

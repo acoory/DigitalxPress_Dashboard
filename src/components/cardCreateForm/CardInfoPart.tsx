@@ -1,21 +1,12 @@
-import * as React from 'react';
+import React, { useContext } from 'react';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import {CardMenuContext} from "../../context/CardMenuContext";
+import { CardMenuContext } from "../../context/CardMenuContext";
+import { handleCardInfoChange } from './CardService';
 
 export default function CardInfoPart() {
-
-    const {cardInfo, setCardInfo} = React.useContext(CardMenuContext);
-
-    const handleCardInfoChange = (event: { target: { name: any; value: any; }; }) => {
-        if (event.target && event.target.name) {
-            setCardInfo({
-                ...cardInfo,
-                [event.target.name]: event.target.value
-            });
-        }
-    }
+    const { cardInfo, setCardInfo } = useContext(CardMenuContext);
 
     return (
         <React.Fragment>
@@ -31,7 +22,7 @@ export default function CardInfoPart() {
                         label="Nom de la carte"
                         fullWidth
                         variant="standard"
-                        onChange={handleCardInfoChange}
+                        onChange={(event) => handleCardInfoChange(event, cardInfo, setCardInfo)}
                         value={cardInfo.cardName}
                     />
                 </Grid>
@@ -44,7 +35,7 @@ export default function CardInfoPart() {
                         label="Description"
                         fullWidth
                         variant="standard"
-                        onChange={handleCardInfoChange}
+                        onChange={(event) => handleCardInfoChange(event, cardInfo, setCardInfo)}
                         value={cardInfo.cardDescription}
                     />
                 </Grid>

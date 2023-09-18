@@ -10,9 +10,10 @@ export const CardMenuConsumer = ({ children }: PropsWithChildren) => {
         cardName: '',
         cardDescription: ''
     });
+    const [categoryListProduct, setCategoryListProduct] = useState([[]]);
 
     return (
-        <CardMenuContext.Provider value={{ categoryList, setCategoryList, product, setProduct, cardInfo, setCardInfo }}>
+        <CardMenuContext.Provider value={{ categoryListProduct, setCategoryListProduct, categoryList, setCategoryList, product, setProduct, cardInfo, setCardInfo }}>
             {children}
         </CardMenuContext.Provider>
     );

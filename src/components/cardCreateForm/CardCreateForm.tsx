@@ -1,28 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import {AppBar, Box, Container, Toolbar, Paper, Stepper, Step, StepLabel, Button, Typography,} from '@mui/material';
-import CardInfoPart from './CardInfoPart';
-import CategoryPart from './CategoryPart';
-import ProductPart from './ProductPart';
-import {CardMenuConsumer} from "../../context/CardMenuContext";
+import { CardMenuContext } from '../../context/CardMenuContext';
+import {getStepContent, handleCreateAllCardInfo} from './CardService';
 
 const steps = ['Carte', 'Catégories', 'Produits'];
 
-function getStepContent(step: number) {
-    switch (step) {
-        case 0:
-            return <CardInfoPart />;
-        case 1:
-            return <CategoryPart />;
-        case 2:
-            return <ProductPart />;
-        default:
-            throw new Error('Unknown step');
-    }
-}
-
 export default function CardForm() {
     const [activeStep, setActiveStep] = useState(0);
+    const { cardInfo } = useContext(CardMenuContext);
 
     const handleNext = () => {
         setActiveStep(activeStep + 1);
@@ -33,8 +19,7 @@ export default function CardForm() {
     };
 
     return (
-        <React.Fragment>
-            <CardMenuConsumer>
+        <>
             <CssBaseline />
             <AppBar
                 position="absolute"
@@ -54,7 +39,7 @@ export default function CardForm() {
             <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
                 <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
                     <Typography component="h1" variant="h4" align="center">
-                        Checkout
+                        Carte
                     </Typography>
                     <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
                         {steps.map((label) => (
@@ -64,13 +49,13 @@ export default function CardForm() {
                         ))}
                     </Stepper>
                     {activeStep === steps.length ? (
-                        <React.Fragment>
+                        <>
                             <Typography variant="h5" gutterBottom>
-                                Votre nouvelle carte à bien était créée.
+                                Votre nouvelle carte a bien été créée.
                             </Typography>
-                        </React.Fragment>
+                        </>
                     ) : (
-                        <React.Fragment>
+                        <>
                             {getStepContent(activeStep)}
                             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                                 {activeStep !== 0 && (
@@ -80,17 +65,20 @@ export default function CardForm() {
                                 )}
                                 <Button
                                     variant="contained"
-                                    onClick={handleNext}
+                                    onClick={
+                                        activeStep === steps.length - 1
+                                            ? () => handleCreateAllCardInfo(cardInfo, [], [])
+                                            : handleNext
+                                    }
                                     sx={{ mt: 3, ml: 1 }}
                                 >
                                     {activeStep === steps.length - 1 ? 'Valider' : 'Next'}
                                 </Button>
                             </Box>
-                        </React.Fragment>
+                        </>
                     )}
                 </Paper>
             </Container>
-            </CardMenuConsumer>
-        </React.Fragment>
+        </>
     );
 }
