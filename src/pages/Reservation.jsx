@@ -18,6 +18,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
 
+// ################################################### UTILS #########################################################
 function CustomBreadcrumbs() {
     return (<BreadcrumbsComponent aria-label="breadcrumb" separator="/">
         <BiTime size={20}/>
@@ -43,6 +44,8 @@ const getStatusColors = (status) => {
             return ''; // retourne une chaîne vide pour la couleur par défaut
     }
 };
+
+// ################################################### MODALS ########################################################
 
 function CreateReservationModal({isOpen, onClose, data, setData, createReservation}) {
     return (
@@ -283,8 +286,11 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
     );
 }
 
+// ################################################### MAIN ##########################################################
 
 function Reservation() {
+
+    // ######### STATE #########
 
     const [resources, setResources] = useState([]);
     const [events, setEvents] = useState([]);
@@ -306,21 +312,21 @@ function Reservation() {
     const [isModalModifyReservationOpen, setIsModalModifyReservationOpen] = useState(false);
     const [dataModalModifyReservation, setDataModalModifyReservation] = useState({
         id: 0,
-        numberOfPersons: 7,
+        numberOfPersons: 1,
         comment: "",
-        tables: [
-            11
-        ],
+        tables: [],
         date: "",
         status: "",
         Client: {
-            id: 22,
+            id: 0,
             email: "",
-            mobileNumber: "06********",
+            mobileNumber: "",
             firstname: "",
             lastname: ""
         }
     });
+
+    // ######### USE EFFECTS #########
 
     useEffect(() => {
         console.log("useEffect 1 has been called!");
@@ -390,12 +396,7 @@ function Reservation() {
 
     }, []);
 
-    function cleanModalCreateReservation() {
-        setIsModalCreateReservationOpen(false);
-        setDataModalCreateReservation({
-            email: "", date: "", firstname: "", lastname: "", numberOfPersons: 1
-        });
-    }
+    // ### SCHEDULER FUNCTIONS ###
 
     function nextClick(schedulerData) {
         let newSchedulerData = new SchedulerData(schedulerData.startDate, schedulerData.viewType);
@@ -430,189 +431,6 @@ function Reservation() {
         newSchedulerData.setResources(resources);
         newSchedulerData.setEvents(events);
         setViewModel(newSchedulerData);
-    }
-
-    function createReservation() {
-
-        console.log("createReservation has been called!")
-        console.log("Here is the dataModalCreateReservation: ", dataModalCreateReservation)
-        let newEvents = [];
-
-        Api.instance.post('api/reservation/create_reservation', dataModalCreateReservation, {withCredentials: true})
-            .then((response) => {
-                newEvents = response.data.Reserved.map((reserved) => {
-                    let newEvent = {
-                        resourceId: reserved.Table.id,
-                        id: reserved.id,
-                        ReservationId: response.data.id,
-                        start: moment(response.data.date).format("YYYY-MM-DD HH:mm:ss"),
-                        end: moment(response.data.date).add(1, 'hours').add(30, 'minutes').format("YYYY-MM-DD HH:mm:ss"),
-                        title: response.data.Client.firstname + " " + response.data.Client.lastname,
-                        bgColor: response.data.status === "Confirmed" ? '#28a7a3' : response.data.status === "Pending" ? '#b4891d' : '#dc3545',
-                        Client: {
-                            id: response.data.Client.id,
-                            firstname: response.data.Client.firstname,
-                            lastname: response.data.Client.lastname,
-                            email: response.data.Client.email,
-                            mobileNumber: response.data.Client.mobileNumber,
-                            count_no_shows: response.data.Client.count_no_shows,
-                            count_reservations: response.data.Client.count_reservations
-                        },
-                        Table: {
-                            id: reserved.Table.id, name: reserved.Table.name, capacity: reserved.Table.capacity
-                        },
-                        Reservation: {
-                            id: response.data.id,
-                            numberOfPerson: response.data.numberOfPersons,
-                            comment: response.data.comment,
-                            status: response.data.status
-                        },
-                        resizable: false
-                    };
-                    return newEvent;
-                });
-                setEvents((events) => [...events, ...newEvents]);
-                setIsModalCreateReservationOpen(false);
-                cleanModalCreateReservation();
-            })
-            .catch((error) => {
-                console.error("Erreur lors de la récupération des données:", error);
-            });
-
-    }
-
-    function modifyReservation() {
-        console.log("modifyReservation has been called!")
-        console.log("Here is the dataModalModifyReservation: ", dataModalModifyReservation)
-        const dataToSend = dataModalModifyReservation
-        // put date in the correct format
-        dataToSend.date = moment(dataToSend.date).format("YYYY-MM-DDTHH:mm:ssZ")
-        dataToSend.tables = dataToSend.tables.map((tableId) => {
-            return tableId
-        })
-        dataToSend.numberOfPersons = parseInt(dataToSend.numberOfPersons)
-        let newEvents = [];
-
-        Api.instance.put("/api/reservation/" + dataModalModifyReservation.id, dataToSend)
-            .then((response) => {
-                // delete old events with the same reservationId
-                setEvents((events) => events.filter((e) => e.Reservation.id !== response.data.id));
-
-                // set the new events
-                newEvents = response.data.Reserved.map((reserved) => {
-                    let newEvent = {
-                        resourceId: reserved.Table.id,
-                        id: reserved.id,
-                        ReservationId: response.data.id,
-                        start: moment(response.data.date).format("YYYY-MM-DD HH:mm:ss"),
-                        end: moment(response.data.date).add(1, 'hours').add(30, 'minutes').format("YYYY-MM-DD HH:mm:ss"),
-                        title: response.data.Client.firstname + " " + response.data.Client.lastname,
-                        bgColor: response.data.status === "Confirmed" ? '#28a7a3' : response.data.status === "Pending" ? '#b4891d' : '#dc3545',
-                        Client: {
-                            id: response.data.Client.id,
-                            firstname: response.data.Client.firstname,
-                            lastname: response.data.Client.lastname,
-                            email: response.data.Client.email,
-                            mobileNumber: response.data.Client.mobileNumber,
-                            count_no_shows: response.data.Client.count_no_shows,
-                            count_reservations: response.data.Client.count_reservations
-                        },
-                        Table: {
-                            id: reserved.Table.id, name: reserved.Table.name, capacity: reserved.Table.capacity
-                        },
-                        Reservation: {
-                            id: response.data.id,
-                            numberOfPerson: response.data.numberOfPersons,
-                            comment: response.data.comment,
-                            status: response.data.status
-                        },
-                        resizable: false
-                    };
-                    return newEvent;
-                });
-                setEvents((events) => [...events, ...newEvents]);
-                setIsModalModifyReservationOpen(false);
-            })
-            .catch((error) => {
-                console.error("Erreur lors de la récupération des données:", error);
-            });
-
-    }
-
-    function newEvent(schedulerData, slotId, slotName, start, end, type, item) {
-        setDataModalCreateReservation({
-            ...dataModalCreateReservation, date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ")
-        });
-        setIsModalCreateReservationOpen(true);
-    }
-
-    function moveEvent(schedulerData, event, slotId, slotName, start, end) {
-        // replace the original event in the array with the same event but different ressourceId
-        const newEvents = events.map((e) => {
-            if (e.id === event.id) {
-                return {
-                    ...e,
-                    resourceId: slotId,
-                    start: moment(start).format("YYYY-MM-DD HH:mm:ss"),
-                    end: moment(start).add(1, 'hours').add(30, 'minutes').format("YYYY-MM-DD HH:mm:ss"),
-                };
-            } else if (e.Reservation.id === event.Reservation.id) {
-                return {
-                    ...e,
-                    start: moment(start).format("YYYY-MM-DD HH:mm:ss"),
-                    end: moment(start).add(1, 'hours').add(30, 'minutes').format("YYYY-MM-DD HH:mm:ss"),
-                };
-            }
-            return e;
-        });
-        // keep event with only the same Reservation.id
-        const dataToSend = newEvents.filter((e) => e.Reservation.id === event.Reservation.id).map((e) => {
-            return e.resourceId;
-        })
-        Api.instance.post('/api/reservation/' + event.Reservation.id + '/reassign_table', {tables: dataToSend}, {withCredentials: true}).then((response) => {
-            Api.instance.post('/api/reservation/' + event.Reservation.id + '/change_date', {date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ")}, {withCredentials: true}).then((response) => {
-                console.log(response.data);
-            }).catch((error) => {
-                console.error("Erreur lors de la récupération des données:", error);
-            });
-            setEvents(newEvents);
-        }).catch((error) => {
-            console.error("Erreur lors de la récupération des données:", error);
-        })
-    }
-
-    function deleteEvent(schedulerData, event) {
-        console.log("delete event clicked");
-    }
-
-    function modifyEvent(schedulerData, event) {
-        setDataModalModifyReservation({
-            id: event.Reservation.id,
-            numberOfPersons: event.Reservation.numberOfPerson || "",
-            comment: event.Reservation.comment || "",
-            tables: events.filter((e) => e.Reservation.id === event.Reservation.id).map((e) => e.Table.id),
-            date: event.start,
-            status: event.Reservation.status || "",
-            Client: {
-                id: event.Client.id,
-                email: event.Client.email || "",
-                mobileNumber: event.Client.mobileNumber || "",
-                firstname: event.Client.firstname || "",
-                lastname: event.Client.lastname || ""
-            }
-        })
-
-        // open the modal
-        setIsModalModifyReservationOpen(true);
-    }
-
-
-    function confirmEvent(schedulerData, event) {
-        console.log("confirm event clicked")
-    }
-
-    function sendEmail(schedulerData, event) {
-        console.log("send email clicked")
     }
 
     function eventItemPopoverTemplateResolver(schedulerData, eventItem, title, start, end, statusColor) {
@@ -745,22 +563,237 @@ function Reservation() {
 
                 {/* Boutons d'action */}
                 <Box display="flex" gap={2}>
-                    <Button variant="contained" color="primary" onClick={() => modifyEvent(schedulerData, eventItem)}>
+
+                    {eventItem.Reservation.status === "Pending" &&
+                        <Button variant="contained" color="success"
+                                onClick={() => confirmEvent(schedulerData, eventItem)}>
+                            Accepter
+                        </Button>
+                    }
+
+                    <Button variant="contained" color="primary"
+                            onClick={() => appearModalModify(schedulerData, eventItem)}>
                         Modifier
                     </Button>
 
-                    {eventItem.Reservation.status === "Pending" && (
-                        <Button variant="contained" color="success"
-                                onClick={() => confirmEvent(schedulerData, eventItem)}>
-                            Confirmer
+                    {eventItem.Reservation.status !== "Confirmed" ?
+                        <Button variant="contained" color="error"
+                                onClick={() => deleteReservation(schedulerData, eventItem)}>
+                            Refuser
                         </Button>
-                    )}
-
-                    <Button variant="contained" color="error" onClick={() => deleteEvent(schedulerData, eventItem)}>
-                        Supprimer
-                    </Button>
+                        :
+                        <Button variant="contained" color="error" onClick={() => absent(schedulerData, eventItem)}>
+                            Supprimer
+                        </Button>
+                    }
                 </Box>
             </Box>);
+    }
+
+    function newEvent(schedulerData, slotId, slotName, start, end, type, item) {
+        appearModalCreate(start);
+    }
+
+    function moveEvent(schedulerData, event, slotId, slotName, start, end) {
+        // replace the original event in the array with the same event but different ressourceId
+        const newEvents = events.map((e) => {
+            if (e.id === event.id) {
+                return {
+                    ...e,
+                    resourceId: slotId,
+                    start: moment(start).format("YYYY-MM-DD HH:mm:ss"),
+                    end: moment(start).add(1, 'hours').add(30, 'minutes').format("YYYY-MM-DD HH:mm:ss"),
+                };
+            } else if (e.Reservation.id === event.Reservation.id) {
+                return {
+                    ...e,
+                    start: moment(start).format("YYYY-MM-DD HH:mm:ss"),
+                    end: moment(start).add(1, 'hours').add(30, 'minutes').format("YYYY-MM-DD HH:mm:ss"),
+                };
+            }
+            return e;
+        });
+        // keep event with only the same Reservation.id
+        const dataToSend = newEvents.filter((e) => e.Reservation.id === event.Reservation.id).map((e) => {
+            return e.resourceId;
+        })
+        Api.instance.post('/api/reservation/' + event.Reservation.id + '/reassign_table', {tables: dataToSend}, {withCredentials: true}).then((response) => {
+            Api.instance.post('/api/reservation/' + event.Reservation.id + '/change_date', {date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ")}, {withCredentials: true}).then((response) => {
+                console.log(response.data);
+            }).catch((error) => {
+                console.error("Erreur lors de la récupération des données:", error);
+            });
+            setEvents(newEvents);
+        }).catch((error) => {
+            console.error("Erreur lors de la récupération des données:", error);
+        })
+    }
+
+    // ### MODAL AND BUTTON FUNCTIONS ###
+
+    function appearModalModify(schedulerData, event) {
+        setDataModalModifyReservation({
+            id: event.Reservation.id,
+            numberOfPersons: event.Reservation.numberOfPerson || "",
+            comment: event.Reservation.comment || "",
+            tables: events.filter((e) => e.Reservation.id === event.Reservation.id).map((e) => e.Table.id),
+            date: event.start,
+            status: event.Reservation.status || "",
+            Client: {
+                id: event.Client.id,
+                email: event.Client.email || "",
+                mobileNumber: event.Client.mobileNumber || "",
+                firstname: event.Client.firstname || "",
+                lastname: event.Client.lastname || ""
+            }
+        })
+        setIsModalModifyReservationOpen(true);
+    }
+
+    function appearModalCreate(start) {
+        setDataModalCreateReservation({
+            ...dataModalCreateReservation, date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ")
+        });
+        setIsModalCreateReservationOpen(true);
+    }
+
+    function clearModalCreation() {
+        setIsModalCreateReservationOpen(false);
+        setDataModalCreateReservation({
+            email: "", date: "", firstname: "", lastname: "", numberOfPersons: 1
+        });
+    }
+
+    function clearModalModification() {
+        setIsModalModifyReservationOpen(false);
+        setDataModalModifyReservation({
+                id: 0,
+                numberOfPersons: 1,
+                comment: "",
+                tables: [],
+                date: "",
+                status: "",
+                Client: {
+                    id: 0,
+                    email: "",
+                    mobileNumber: "",
+                    firstname: "",
+                    lastname: ""
+                }
+            }
+        );
+    }
+
+    function createReservation() {
+        let newEvents = [];
+        Api.instance.post('api/reservation/create_reservation', dataModalCreateReservation, {withCredentials: true})
+            .then((response) => {
+                newEvents = response.data.Reserved.map((reserved) => {
+                    let newEvent = {
+                        resourceId: reserved.Table.id,
+                        id: reserved.id,
+                        ReservationId: response.data.id,
+                        start: moment(response.data.date).format("YYYY-MM-DD HH:mm:ss"),
+                        end: moment(response.data.date).add(1, 'hours').add(30, 'minutes').format("YYYY-MM-DD HH:mm:ss"),
+                        title: response.data.Client.firstname + " " + response.data.Client.lastname,
+                        bgColor: response.data.status === "Confirmed" ? '#28a7a3' : response.data.status === "Pending" ? '#b4891d' : '#dc3545',
+                        Client: {
+                            id: response.data.Client.id,
+                            firstname: response.data.Client.firstname,
+                            lastname: response.data.Client.lastname,
+                            email: response.data.Client.email,
+                            mobileNumber: response.data.Client.mobileNumber,
+                            count_no_shows: response.data.Client.count_no_shows,
+                            count_reservations: response.data.Client.count_reservations
+                        },
+                        Table: {
+                            id: reserved.Table.id, name: reserved.Table.name, capacity: reserved.Table.capacity
+                        },
+                        Reservation: {
+                            id: response.data.id,
+                            numberOfPerson: response.data.numberOfPersons,
+                            comment: response.data.comment,
+                            status: response.data.status
+                        },
+                        resizable: false
+                    };
+                    return newEvent;
+                });
+                setEvents((events) => [...events, ...newEvents]);
+                setIsModalCreateReservationOpen(false);
+                clearModalCreation();
+            })
+            .catch((error) => {
+                console.error("Erreur lors de la récupération des données:", error);
+            });
+    }
+
+    function modifyReservation() {
+        const dataToSend = dataModalModifyReservation
+        // put date in the correct format
+        dataToSend.date = moment(dataToSend.date).format("YYYY-MM-DDTHH:mm:ssZ")
+        dataToSend.tables = dataToSend.tables.map((tableId) => {
+            return tableId
+        })
+        dataToSend.numberOfPersons = parseInt(dataToSend.numberOfPersons)
+        let newEvents = [];
+
+        Api.instance.put("/api/reservation/" + dataModalModifyReservation.id, dataToSend)
+            .then((response) => {
+                // delete old events with the same reservationId
+                setEvents((events) => events.filter((e) => e.Reservation.id !== response.data.id));
+
+                // set the new events
+                newEvents = response.data.Reserved.map((reserved) => {
+                    let newEvent = {
+                        resourceId: reserved.Table.id,
+                        id: reserved.id,
+                        ReservationId: response.data.id,
+                        start: moment(response.data.date).format("YYYY-MM-DD HH:mm:ss"),
+                        end: moment(response.data.date).add(1, 'hours').add(30, 'minutes').format("YYYY-MM-DD HH:mm:ss"),
+                        title: response.data.Client.firstname + " " + response.data.Client.lastname,
+                        bgColor: response.data.status === "Confirmed" ? '#28a7a3' : response.data.status === "Pending" ? '#b4891d' : '#dc3545',
+                        Client: {
+                            id: response.data.Client.id,
+                            firstname: response.data.Client.firstname,
+                            lastname: response.data.Client.lastname,
+                            email: response.data.Client.email,
+                            mobileNumber: response.data.Client.mobileNumber,
+                            count_no_shows: response.data.Client.count_no_shows,
+                            count_reservations: response.data.Client.count_reservations
+                        },
+                        Table: {
+                            id: reserved.Table.id, name: reserved.Table.name, capacity: reserved.Table.capacity
+                        },
+                        Reservation: {
+                            id: response.data.id,
+                            numberOfPerson: response.data.numberOfPersons,
+                            comment: response.data.comment,
+                            status: response.data.status
+                        },
+                        resizable: false
+                    };
+                    return newEvent;
+                });
+                setEvents((events) => [...events, ...newEvents]);
+                clearModalModification();
+            })
+            .catch((error) => {
+                console.error("Erreur lors de la récupération des données:", error);
+            });
+    }
+
+
+    function deleteReservation(schedulerData, event) {
+        console.log("delete event clicked");
+    }
+
+    function absent(schedulerData, event) {
+        console.log("no-show event clicked")
+    }
+
+    function confirmEvent(schedulerData, event) {
+        console.log("confirm event clicked")
     }
 
     return (
@@ -768,7 +801,7 @@ function Reservation() {
 
             <CreateReservationModal
                 isOpen={isModalCreateReservationOpen}
-                onClose={cleanModalCreateReservation}
+                onClose={clearModalCreation}
                 data={dataModalCreateReservation}
                 setData={setDataModalCreateReservation}
                 createReservation={createReservation}
