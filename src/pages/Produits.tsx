@@ -9,6 +9,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { AiFillDelete } from "react-icons/ai";
 import { MdDeleteSweep } from "react-icons/md";
 import { Modal, Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 // import { WithContext as ReactTags } from "react-tag-input";
 
 type Product = {
@@ -31,6 +32,8 @@ export default function Produits() {
   const [supplements, setSupplements] = React.useState<any>([]);
   const [tagsOptionChoice, setTagsOptionChoice] = useState<any>([]);
   const produitService = new ProduitsService();
+
+  const navigate = useNavigate();
 
   const [choiceProduct, setChoiceProduct] = React.useState<any>({
     productId: product?.id,
@@ -126,7 +129,10 @@ export default function Produits() {
     >
       <div className="flex flex-col w-full ">
         <div className="flex flex-row w-full">
-          <button className="bg-[#202020] flex flex-row pl-5 pr-5 pt-[8px] pb-[8px] rounded-md text-white items-center text-[13px]">
+          <button
+            onClick={() => navigate("/produits/create")}
+            className="bg-[#202020] flex flex-row pl-5 pr-5 pt-[8px] pb-[8px] rounded-md text-white items-center text-[13px]"
+          >
             <AiOutlinePlus size={20} className="mr-2" />
             Ajouter un produit
           </button>

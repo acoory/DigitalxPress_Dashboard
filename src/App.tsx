@@ -20,6 +20,7 @@ import CardMenu from "./pages/CardMenu";
 import Produits from "./pages/Produits";
 import Horaire from "./pages/Horaire";
 import Table from "./pages/Table";
+import ProduitCreate from "./pages/ProduitCreate";
 
 function App() {
   const { setUser, setIsAuthenticated, isAuthenticated } = useContext(UserContext);
@@ -103,6 +104,14 @@ function App() {
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <Produits />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/produits/create"
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <ProduitCreate />
           </PrivateRoute>
         }
       />
