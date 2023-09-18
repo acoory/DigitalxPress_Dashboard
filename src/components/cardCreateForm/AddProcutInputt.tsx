@@ -35,7 +35,7 @@ export const fetchCreateCard = async (cardName: string, cardDescription: string)
     return response;
 }
 
-export const fetchCreateCategory = async (cardId: number, categoryName: string) => {
+export const fetchCreateCategory = async (categoryName: string) => {
     const response = await fetch(process.env.REACT_APP_API_URL + '/api/category', {
         method: 'POST',
         headers: {

@@ -14,7 +14,14 @@ export const handleCreateAllCardInfo = async (cardInfo: { cardName: string; card
             fetchCreateCategory(categoryList, categoryListProduct)
                 .then((response) => {
                     console.log(response);
-                    fetchCreateCardProduct(categoryListProduct, response.id)
+                    categoryListProduct.forEach((category: any) => {
+                        category.products.forEach((product: any) => {
+                            fetchCreateCardProduct(response.id, product.id, category.id)
+                                .then((response) => {
+                                    console.log(response);
+                                })
+                        })
+                    })
                 })
         }
     } catch (error) {
