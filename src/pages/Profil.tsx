@@ -4,34 +4,87 @@ import Breadcrumbs from "@mui/material/Breadcrumbs";
 import { Typography } from "@mui/material";
 import { BiSolidUserDetail } from "react-icons/bi";
 import { UserContext } from "../context/UserContext";
+import AdminService from "../services/AdminService";
+import adminService from "../services/AdminService";
+import { Modal, Box } from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
 
 export default function Profil() {
-  const { user} = useContext(UserContext);
+  const { user } = useContext(UserContext);
+  const [openModal, setOpenModal] = React.useState(false);
+  const [state, setState] = React.useState({
+    open: false,
+    vertical: "top",
+    horizontal: "right",
+    message: "",
+  });
+
+  const { vertical, horizontal, open } = state;
+  console.log(user);
+
+  const handleClose = () => {
+    setState({ ...state, open: false });
+  };
+
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "70%",
+    bgcolor: "background.paper",
+    // border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+    borderRadius: "10px",
+  };
+
   const [userInfo, setUserInfo] = React.useState({
     firstname: user?.firstname || "",
     lastname: user?.lastname || "",
     mobileNumber: user?.mobileNumber || "",
     email: user?.email || "",
-    password: "",
-    newpassword:  "",
   });
+  const [password, setPassword] = React.useState("");
 
   React.useEffect(() => {
-    setUserInfo({
-      firstname: user?.firstname || "",
-      lastname: user?.lastname || "",
-      mobileNumber: user?.mobileNumber || "",
-      email: user?.email || "",
-      password: "",
-      newpassword:  "",
+    adminService.getUserInfo(parseInt(user.id)).then((res) => {
+      setUserInfo({
+        firstname: res?.firstname || "",
+        lastname: res?.lastname || "",
+        mobileNumber: res?.mobileNumber || "",
+        email: res?.email || "",
+      });
     });
-    console.log(userInfo);
   }, []);
 
+  const handleUpdateUser = async () => {
+    await adminService.UpdateAdmin(parseInt(user.id), userInfo).then((res) => {
+      localStorage.setItem("admin", JSON.stringify(res.data));
+      console.log(res);
+      setUserInfo({
+        firstname: res.data?.firstname || "",
+        lastname: res.data?.lastname || "",
+        mobileNumber: res.data?.mobileNumber || "",
+        email: res.data?.email || "",
+      });
 
-  
+      setState({
+        ...state,
+        open: true,
+        message: "Profil modifié avec succès",
+      });
 
-  
+      setTimeout(() => {
+        setState({
+          ...state,
+          open: false,
+          message: "",
+        });
+      }, 4000);
+    });
+  };
+
   return (
     <Nav
       Breadcrumbs={() => (
@@ -49,6 +102,12 @@ export default function Profil() {
         </Breadcrumbs>
       )}
     >
+      <Snackbar
+        open={open}
+        onClose={handleClose}
+        message={state.message}
+        key={vertical + horizontal}
+      />
       <div className="m-[20px]">
         <h1 className="font-[700] text-[#344767]">Profile</h1>
         <p className="text-[#666666] font-[300] mt-[10px] text-[14px]">
@@ -91,7 +150,7 @@ export default function Profil() {
                 </label>
                 <input
                   className="border border-[#E5E5E5] rounded-[5px] px-[10px] py-[5px] mt-[5px]"
-                  value={user?.mobileNumber ? user?.mobileNumber : ""}
+                  value={userInfo?.mobileNumber}
                   onChange={(e) =>
                     setUserInfo({ ...userInfo, mobileNumber: e.target.value })
                   }
@@ -100,40 +159,99 @@ export default function Profil() {
             </div>
           </div>
           <hr className="mt-[20px]"></hr>
+          <div className="w-full flex ">
+            <button
+              onClick={handleUpdateUser}
+              className="px-[16px] bg-[#202020] py-[5px] border border-[#202020] rounded-[5px]  text-[white]"
+            >
+              Modifier
+            </button>
+          </div>
+
+          <hr className="mt-[20px]"></hr>
           <div className="grid grid-cols-1 ">
             <div className="grid grid-cols-2 gap-[20px]">
               <div className="flex flex-col">
                 <label className="text-[#666666] font-[300] text-[14px]">
                   Mot de passe
                 </label>
-                <input
+                <button
+                  onClick={() => setOpenModal(true)}
+                  className="bg-[#202020] w-fit flex flex-row pl-5 pr-5 pt-[8px] pb-[8px] rounded-md text-white items-center text-[13px]"
+                >
+                  Modifier le mot de passe
+                </button>
+                {/* <input
                   className="border border-[#E5E5E5] rounded-[5px] px-[10px] py-[5px] mt-[5px]"
                   value={userInfo?.password}
                   onChange={(e) => setUserInfo({ ...userInfo, password: e.target.value })}
-                />
+                /> */}
               </div>
             </div>
           </div>
           <div className="grid grid-cols-1 ">
             <div className="grid grid-cols-2 gap-[20px]">
               <div className="flex flex-col">
-                <input
+                {/* <input
                   className="border border-[#E5E5E5] rounded-[5px] px-[10px] py-[5px] mt-[5px]"
                   value={userInfo?.newpassword}
                   onChange={(e) =>
                     setUserInfo({ ...userInfo, newpassword: e.target.value })
                   }
-                />
+                /> */}
               </div>
             </div>
           </div>
         </div>
-        <div className="w-full flex items-center justify-center mt-[30px]">
-      <button className="px-[16px] py-[5px] border border-[#7B809A] rounded-[5px] mt-[50px] text-[#7B809A]">
-        Modifier</button>
-    </div>
-        
       </div>
+      <Modal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Modifier le mot de passe
+          </Typography>
+          <div className="grid grid-cols-1 overflow-scroll">
+            <input
+              className="border border-[#E5E5E5] rounded-[5px] px-[10px] py-[5px] mt-[5px]"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              onClick={() => {
+                adminService
+                  .updatePassword(parseInt(user.id), {
+                    password: password,
+                  })
+                  .then((res) => {
+                    if (res.status === 200) {
+                      setState({
+                        ...state,
+                        open: true,
+                        message: "Mot de passe modifié avec succès",
+                      });
+                      setOpenModal(false);
+
+                      setTimeout(() => {
+                        setState({
+                          ...state,
+                          open: false,
+                          message: "",
+                        });
+                      }, 4000);
+                    }
+                  });
+              }}
+              className="bg-[#202020] w-fit flex flex-row pl-5 pr-5 pt-[8px] pb-[8px] mt-5 rounded-md text-white items-center text-[13px]"
+            >
+              Modifier
+            </button>
+          </div>
+        </Box>
+      </Modal>
     </Nav>
   );
 }

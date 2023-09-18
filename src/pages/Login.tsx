@@ -100,7 +100,6 @@ export default function Login() {
 
   return (
     <div className="bg-default flex justify-center items-center h-screen flex flex-col">
-   
       {error && (
         <div className="w-[35%] mx-auto bg-[#8f1f1f] flex flex-col items-center py-[10px] rounded-md shadow-md mb-[10px]">
           <p className="text-[80%] font-[400] mx-auto text-[white]">{error}</p>
@@ -117,41 +116,42 @@ export default function Login() {
         <p className="text-[80%] font-[400] mx-auto text-[#8898aa]">
           Sign in with credentials
         </p>
-        <div className="mx-auto mt-[20px] flex items-center w-[70%] border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md">
-          <MdEmail size={20} color="#adb5bd" className="ml-[10px] " />
-          <input
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder="email"
-            autoComplete="new-email"
-            type="email"
-            // class="form-control"
-            className="px-4 py-2 w-full outline-none"
-          />
-        </div>
+        <form className="flex flex-col items-center w-[70%]">
+          <div className="mx-auto mt-[20px] flex items-center w-[70%] border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md">
+            <MdEmail size={20} color="#adb5bd" className="ml-[10px] " />
+            <input
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="email"
+              autoComplete="new-email"
+              type="text"
+              // class="form-control"
+              className="px-4 py-2 w-full outline-none"
+            />
+          </div>
 
-        <div className="mx-auto mt-[20px] flex items-center w-[70%] border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md">
-          <RiLockPasswordFill size={20} color="#adb5bd" className="ml-[10px]" />
-          <input
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            placeholder="password"
-            autoComplete="new-password"
-            type="password"
-            // class="form-control"
-            className="px-4 py-2 w-full outline-none"
-          />
-        </div>
-        {/* color: #fff;
+          <div className="mx-auto mt-[20px] flex items-center w-[70%] border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md">
+            <RiLockPasswordFill size={20} color="#adb5bd" className="ml-[10px]" />
+            <input
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder="password"
+              autoComplete="new-password"
+              type="password"
+              // class="form-control"
+              className="px-4 py-2 w-full outline-none"
+            />
+          </div>
+          {/* color: #fff;
     background-color: #5e72e4;
     border-color: #5e72e4; */}
 
-        <button
-          onClick={handleSubmit}
-          className="mx-auto mt-[20px] mb-[20px] w-[70%] bg-[#5e72e4] text-[white] py-[10px] rounded-md shadow-sm lg:shadow-md"
-        >
-          Sign in
-        </button>
+          <button
+            onClick={handleSubmit}
+            className="mx-auto mt-[20px] mb-[20px] w-[70%] bg-[#5e72e4] text-[white] py-[10px] rounded-md shadow-sm lg:shadow-md"
+          >
+            Sign in
+          </button>
+        </form>
       </div>
-      
     </div>
   );
 }
