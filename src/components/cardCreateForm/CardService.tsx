@@ -38,3 +38,20 @@ export const handleCardInfoChange = (event: { target: { name: any; value: any; }
     }
 };
 
+// CategoryService.js
+export const handleAddCategory = (categoryName: any, categoryList: any, setCategoryList: (arg0: any[]) => void, setCategoryName: (arg0: string) => void) => {
+    setCategoryList([...categoryList, categoryName]);
+    setCategoryName('');
+};
+
+export const handleDeleteCategory = (index: any, categoryList: any, setCategoryList: (arg0: any[]) => void) => {
+    const newList = [...categoryList];
+    newList.splice(index, 1);
+    setCategoryList(newList);
+};
+
+export const handleCategoryNameChange = (event: { target: { value: any; }; }, setCategoryName: (arg0: any) => void) => {
+    setCategoryName(event.target.value);
+};
+
+

@@ -1,30 +1,15 @@
-import * as React from 'react';
+import React, { useContext } from 'react';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Button from "@mui/material/Button";
 import { List, ListItem, ListItemText } from '@mui/material';
-import {CardMenuContext} from "../../context/CardMenuContext";
+import { CardMenuContext } from "../../context/CardMenuContext";
+import { handleAddCategory, handleDeleteCategory, handleCategoryNameChange } from './CardService';
 
 export default function CategoryPart() {
-
     const [categoryName, setCategoryName] = React.useState('');
-    const {categoryList, setCategoryList} = React.useContext(CardMenuContext);
-
-    const handleAddCategory = () => {
-        setCategoryList([...categoryList, categoryName]);
-        setCategoryName('');
-    }
-
-    const handleDeleteCategory = (index: number) => {
-        const newList = [...categoryList];
-        newList.splice(index, 1);
-        setCategoryList(newList);
-    }
-
-    const handleCategoryNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setCategoryName(event.target.value);
-    }
+    const { categoryList, setCategoryList } = useContext(CardMenuContext);
 
     return (
         <React.Fragment>
@@ -40,10 +25,10 @@ export default function CategoryPart() {
                         fullWidth
                         variant="standard"
                         value={categoryName}
-                        onChange={handleCategoryNameChange}
+                        onChange={(event) => handleCategoryNameChange(event, setCategoryName)}
                         onKeyUp={(ev) => {
                             if (ev.key === 'Enter') {
-                                handleAddCategory();
+                                handleAddCategory(categoryName, categoryList, setCategoryList, setCategoryName);
                             }
                         }}
                     />
@@ -54,7 +39,7 @@ export default function CategoryPart() {
                         variant="outlined"
                         size="small"
                         sx={{ my: 2.5, ml: 1 }}
-                        onClick={handleAddCategory}
+                        onClick={() => handleAddCategory(categoryName, categoryList, setCategoryList, setCategoryName)}
                     >
                         Ajouter
                     </Button>
@@ -65,7 +50,7 @@ export default function CategoryPart() {
                         Catégories ajoutées :
                     </Typography>
                     <List sx={{ listStyleType: 'disc', pt: 0 }}>
-                        {categoryList.map((category: string, index: number) => (
+                        {categoryList.map((category: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
                             <ListItem key={index} sx={{ pl: 0}}>
                                 <Grid container alignItems="center" spacing={2}>
                                     <Grid item xs={8} style={{ maxWidth: 'calc(100% - 48px)' }}>
@@ -75,7 +60,7 @@ export default function CategoryPart() {
                                         <Button
                                             variant="outlined"
                                             size="small"
-                                            onClick={() => handleDeleteCategory(index)}
+                                            onClick={() => handleDeleteCategory(index, categoryList, setCategoryList)}
                                         >
                                             Supprimer
                                         </Button>
