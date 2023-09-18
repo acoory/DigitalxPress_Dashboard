@@ -1,15 +1,21 @@
-import {fetchCreateCard} from "./AddProcutInputt";
+import {fetchCreateCard, fetchCreateCategory} from "./AddProcutInputt";
 import CardInfoPart from "./CardInfoPart";
 import CategoryPart from "./CategoryPart";
 import ProductPart from "./ProductPart";
 import React from "react";
+import {fetchCreateCardProduct} from "./CardApi";
 
 export const handleCreateAllCardInfo = async (cardInfo: { cardName: string; cardDescription: string; }, categoryList: any, categoryListProduct: any) => {
     try {
         const response = await fetchCreateCard(cardInfo.cardName, cardInfo.cardDescription);
         if (response.status === 200) {
             console.log(response);
-            return response;
+
+            fetchCreateCategory(categoryList, categoryListProduct)
+                .then((response) => {
+                    console.log(response);
+                    fetchCreateCardProduct(categoryListProduct, response.id)
+                })
         }
     } catch (error) {
         console.error(error);

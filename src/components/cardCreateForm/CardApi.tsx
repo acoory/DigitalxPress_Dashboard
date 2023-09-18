@@ -4,7 +4,7 @@ export const fetchAllProducts = async () => {
     return data;
 };
 
-export const fetchCreateCardProduct = async (cardId: any, productId: any) => {
+export const fetchCreateCardProduct = async (cardId: any, productId: any, categoryId?: any) => {
     const response = await fetch(process.env.REACT_APP_API_URL + '/api/card-product', {
         method: 'POST',
         headers: {
@@ -12,6 +12,7 @@ export const fetchCreateCardProduct = async (cardId: any, productId: any) => {
         },
         body: JSON.stringify({
             cardId: cardId,
+            categoryId: categoryId ? categoryId : null,
             productId: productId
         })
     });
