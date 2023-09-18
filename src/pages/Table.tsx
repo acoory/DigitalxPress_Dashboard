@@ -48,7 +48,7 @@ export default function Table() {
   const handleCreateTable = async () => {
     try {
       const response = await axios.post(
-          process.env.REACT_APP_API_URL + "/api/table",
+          `${process.env.REACT_APP_API_URL}/api/table`,
         {
           name: tableName,
           capacity: parseInt(tableCapacity),
@@ -77,7 +77,7 @@ export default function Table() {
   };
   const fetchTables = async () => {
     try {
-      const response = await axios.get(process.env.REACT_APP_API_URL + "/api/table", {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/table`, {
         withCredentials: true, // Active la gestion des cookies
       });
       if (response.status === 200) {
@@ -98,7 +98,7 @@ export default function Table() {
   const handleDeleteTable = async (id: number) => {
     try {
       const response = await axios.delete(
-          process.env.REACT_APP_API_URL + `/api/table/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/table/${id}`,
         {
           withCredentials: true,
         }
@@ -128,7 +128,7 @@ export default function Table() {
 
     try {
       const response = await axios.put(
-          process.env.REACT_APP_API_URL + `/api/table/${id}`,
+          `${process.env.REACT_APP_API_URL}/api/table/${id}`,
         editingTable, // Utilisez les données mises à jour
         {
           withCredentials: true,
