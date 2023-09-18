@@ -7,13 +7,19 @@ import CardReport from "../components/layout/CardReport";
 import { BiSolidUserCircle } from "react-icons/bi";
 import { DataGrid } from "@mui/x-data-grid";
 import { useDemoData } from "@mui/x-data-grid-generator";
+import { ReservationService } from "../services/ReservationService";
 
 export default function Dashboard() {
-  const { data } = useDemoData({
-    dataSet: "Commodity",
-    rowLength: 20,
-    maxColumns: 5,
-  });
+  const [reversations, setReservations] = React.useState<any[]>([]);
+
+  const reservationService = new ReservationService();
+
+  React.useEffect(() => {
+    reservationService.getAll().then((res) => {
+      console.log("res", res);
+      setReservations(res);
+    });
+  }, []);
   return (
     <Nav
       Breadcrumbs={() => (
@@ -33,16 +39,10 @@ export default function Dashboard() {
     >
       <div className="grid-card">
         <CardReport
-          totalText={"Total utilisateurs"}
+          totalText={`Total reservations ${reversations.length}`}
           total={0}
           Icon={() => <BiSolidUserCircle size={22} color="white" />}
           color="#202020"
-        />
-        <CardReport
-          totalText={"Total utilisateurs"}
-          total={0}
-          Icon={() => <BiSolidUserCircle size={22} color="white" />}
-          color="#DA1F63"
         />
       </div>
       <hr
@@ -56,11 +56,22 @@ export default function Dashboard() {
         }}
       >
         <h1 className="font-[700] text-[#344767] mt-[20px]">Nouvelle réservations</h1>
+
+        {/* {         "id": 254,         "Reserved": [             {                 "id": 834,                 "Table": {                     "id": 1,                     "name": "table1",                     "capacity": 1                 }             }         ],         "date": "2023-09-18T12:30:00.000Z",         "Client": {             "id": 38,             "firstname": "sdfghj",             "lastname": "hazfdxjyezhbc",             "email": "kzhebajfhkcaz",             "mobileNumber": null,             "count_reservations": 0,             "count_no_shows": 0,             "notifiable_token": null         },         "comment": null,         "status": "Pending",         "numberOfPersons": 1
+} */}
         <DataGrid
           style={{
             marginTop: "20px",
           }}
-          {...data}
+          rows={reversations}
+          columns={[
+            { field: "id", headerName: "ID", width: 70 },
+            { field: "date", headerName: "Date", width: 130 },
+            { field: "Client", headerName: "Client", width: 130 },
+            { field: "status", headerName: "Status", width: 130 },
+            { field: "numberOfPersons", headerName: "Nombre de personnes", width: 130 },
+            { field: "comment", headerName: "Commentaire", width: 130 },
+          ]}
           sx={{
             boxShadow: 2,
             border: 0,
