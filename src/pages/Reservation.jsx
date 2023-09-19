@@ -286,6 +286,36 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
     );
 }
 
+function DeleteReservationModal({isOpen, onClose, data, setData, deleteTable, deleteFullReservation, noShow}) {
+    return (
+        <Dialog open={isOpen} onClose={onClose}>
+            <DialogTitle>
+                Supprimer la réservation de {data.Client.firstname} {data.Client.lastname} (réservation
+                id: {data.reservationId} - reserved id: {data.reservedId} - table: {data.tableName})
+                <IconButton style={{position: 'absolute', top: '10px', right: '10px'}}
+                            onClick={onClose}>
+                    <CloseIcon/>
+                </IconButton>
+            </DialogTitle>
+            <DialogContent>
+                Que souhaitez-vous faire avec cette réservation ?
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" color="primary" onClick={deleteTable}>
+                    Supprimer uniquement {data.tableName}
+                </Button>
+                <Button variant="contained" color="secondary" onClick={deleteFullReservation}>
+                    Supprimer toute la réservation
+                </Button>
+                <Button variant="contained" color="error" onClick={noShow}>
+                    Signaler comme absent
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+
 // ################################################### MAIN ##########################################################
 
 function Reservation() {
@@ -325,6 +355,19 @@ function Reservation() {
             lastname: ""
         }
     });
+
+    const [isModalDeleteReservationOpen, setIsModalDeleteReservationOpen] = useState(false);
+    const [dataModalDeleteReservation, setDataModalDeleteReservation] = useState({
+        reservationId: 0,
+        reservedId: 0,
+        tableName: "",
+        Client: {
+            firstname: "",
+            lastname: "",
+            email: ""
+        }
+    });
+
 
     // ######### USE EFFECTS #########
 
@@ -576,15 +619,17 @@ function Reservation() {
                         Modifier
                     </Button>
 
-                    {eventItem.Reservation.status !== "Confirmed" ?
-                        <Button variant="contained" color="error"
-                                onClick={() => deleteReservation(schedulerData, eventItem)}>
-                            Refuser
-                        </Button>
-                        :
-                        <Button variant="contained" color="error" onClick={() => absent(schedulerData, eventItem)}>
-                            Supprimer
-                        </Button>
+                    {
+                        eventItem.Reservation.status !== "Confirmed" ?
+                            <Button variant="contained" color="error"
+                                    onClick={() => absent(schedulerData, eventItem)}>
+                                Refuser
+                            </Button>
+                            :
+                            <Button variant="contained" color="error"
+                                    onClick={() => appearModalDelete(schedulerData, eventItem)}>
+                                Supprimer
+                            </Button>
                     }
                 </Box>
             </Box>);
@@ -655,6 +700,20 @@ function Reservation() {
             ...dataModalCreateReservation, date: moment(start).format("YYYY-MM-DDTHH:mm:ssZ")
         });
         setIsModalCreateReservationOpen(true);
+    }
+
+    function appearModalDelete(schedulerData, event) {
+        setDataModalDeleteReservation({
+            reservationId: event.Reservation.id,
+            reservedId: event.id,
+            tableName: event.Table.name,
+            Client: {
+                firstname: event.Client.firstname,
+                lastname: event.Client.lastname,
+                email: event.Client.email
+            }
+        })
+        setIsModalDeleteReservationOpen(true);
     }
 
     function clearModalCreation() {
@@ -809,11 +868,27 @@ function Reservation() {
 
             <ModifyReservationModal
                 isOpen={isModalModifyReservationOpen}
-                onClose={() => setIsModalModifyReservationOpen(false)}
+                onClose={clearModalModification}
                 data={dataModalModifyReservation}
                 setData={setDataModalModifyReservation}
                 modifyReservation={() => modifyReservation()}
                 allTables={resources}
+            />
+
+            <DeleteReservationModal
+                isOpen={isModalDeleteReservationOpen}
+                onClose={() => setIsModalDeleteReservationOpen(false)}
+                data={dataModalDeleteReservation}
+                setData={setDataModalDeleteReservation}
+                deleteTable={() => {
+                    console.log("delete table clicked")
+                }}
+                deleteFullReservation={() => {
+                    console.log("delete full reservation clicked")
+                }}
+                noShow={() => {
+                    console.log("no-show clicked")
+                }}
             />
 
 
