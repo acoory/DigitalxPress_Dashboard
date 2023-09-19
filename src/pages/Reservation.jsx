@@ -622,7 +622,7 @@ function Reservation() {
                     {
                         eventItem.Reservation.status !== "Confirmed" ?
                             <Button variant="contained" color="error"
-                                    onClick={() => absent(schedulerData, eventItem)}>
+                                    onClick={() => declineEvent(schedulerData, eventItem)}>
                                 Refuser
                             </Button>
                             :
@@ -842,17 +842,103 @@ function Reservation() {
             });
     }
 
-
-    function deleteReservation(schedulerData, event) {
-        console.log("delete event clicked");
+    function deleteTableOfReservation(schedulerData, event) {
+        const dataToSend = {
+            reservedId: dataModalDeleteReservation.reservedId
+        }
+        Api.instance.post('/api/reservation/delete_reserved', dataToSend, {withCredentials: true})
+            .then((response) => {
+                // delete only the event with the same reservedId
+                setEvents((events) => events.filter((e) => e.id !== response.data.id));
+                setIsModalDeleteReservationOpen(false);
+            })
+            .catch((error) => {
+                console.error("Erreur lors de la récupération des données:", error);
+            });
     }
 
-    function absent(schedulerData, event) {
-        console.log("no-show event clicked")
+    function deleteFullReservation(schedulerData, event) {
+        const dataToSend = {
+            reservationId: dataModalDeleteReservation.reservationId,
+            decision: false
+        }
+        Api.instance.post('/api/reservation/decision_reservation', dataToSend, {withCredentials: true})
+            .then((response) => {
+                setEvents((events) => events.filter((e) => e.Reservation.id !== response.data.id));
+                setIsModalDeleteReservationOpen(false);
+            })
+            .catch((error) => {
+                console.error("Erreur lors de la récupération des données:", error);
+            });
+    }
+
+    function noShow(schedulerData, event) {
+        const dataToSend = {
+            reservationId: dataModalDeleteReservation.reservationId
+        }
+
+        Api.instance.post('/api/reservation/no_show', dataToSend, {withCredentials: true})
+            .then((response) => {
+                setEvents((events) => events.filter((e) => e.Reservation.id !== dataModalDeleteReservation.reservationId));
+                setIsModalDeleteReservationOpen(false);
+            })
+            .catch((error) => {
+                console.error("Erreur lors de la récupération des données:", error);
+            });
     }
 
     function confirmEvent(schedulerData, event) {
-        console.log("confirm event clicked")
+        const dataToSend = {
+            reservationId: event.Reservation.id,
+            decision: true
+        }
+        Api.instance.post('/api/reservation/decision_reservation', dataToSend, {withCredentials: true})
+            .then((response) => {
+                // set the status of the event with the same reservationId to "Confirmed"
+                setEvents((events) => events.map((e) => {
+                    if (e.Reservation.id === dataToSend.reservationId) {
+                        return {
+                            ...e,
+                            bgColor: '#28a7a3',
+                            Reservation: {
+                                ...e.Reservation,
+                                status: 'Confirmed'
+                            }
+                        };
+                    }
+                    return e;
+                }))
+            })
+            .catch((error) => {
+                console.error("Erreur lors de la récupération des données:", error);
+            });
+    }
+
+    function declineEvent(schedulerData, event) {
+        const dataToSend = {
+            reservationId: event.Reservation.id,
+            decision: false
+        }
+        Api.instance.post('/api/reservation/decision_reservation', dataToSend, {withCredentials: true})
+            .then((response) => {
+                // set the status of the event with the same reservationId to "Declined"
+                setEvents((events) => events.map((e) => {
+                    if (e.Reservation.id === dataToSend.reservationId) {
+                        return {
+                            ...e,
+                            bgColor: '#dc3545',
+                            Reservation: {
+                                ...e.Reservation,
+                                status: 'Declined'
+                            }
+                        };
+                    }
+                    return e;
+                }))
+            })
+            .catch((error) => {
+                console.error("Erreur lors de la récupération des données:", error);
+            });
     }
 
     return (
@@ -880,15 +966,9 @@ function Reservation() {
                 onClose={() => setIsModalDeleteReservationOpen(false)}
                 data={dataModalDeleteReservation}
                 setData={setDataModalDeleteReservation}
-                deleteTable={() => {
-                    console.log("delete table clicked")
-                }}
-                deleteFullReservation={() => {
-                    console.log("delete full reservation clicked")
-                }}
-                noShow={() => {
-                    console.log("no-show clicked")
-                }}
+                deleteTable={deleteTableOfReservation}
+                deleteFullReservation={deleteFullReservation}
+                noShow={noShow}
             />
 
 
