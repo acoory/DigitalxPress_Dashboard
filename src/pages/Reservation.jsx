@@ -16,6 +16,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
+import WarningIcon from '@mui/icons-material/Warning';
+import NotInterestedIcon from '@mui/icons-material/NotInterested';
 
 
 // ################################################### UTILS #########################################################
@@ -286,29 +289,44 @@ function ModifyReservationModal({isOpen, onClose, data, setData, modifyReservati
     );
 }
 
-function DeleteReservationModal({isOpen, onClose, data, setData, deleteTable, deleteFullReservation, noShow}) {
+function DeleteReservationModal({isOpen, onClose, data, deleteTable, deleteFullReservation, noShow}) {
     return (
-        <Dialog open={isOpen} onClose={onClose}>
-            <DialogTitle>
-                Supprimer la réservation de {data.Client.firstname} {data.Client.lastname} (réservation
-                id: {data.reservationId} - reserved id: {data.reservedId} - table: {data.tableName})
-                <IconButton style={{position: 'absolute', top: '10px', right: '10px'}}
-                            onClick={onClose}>
-                    <CloseIcon/>
+        <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
+            <DialogTitle style={{background: '#f4f4f4', position: 'relative'}}>
+                <span>Que faire avec la table de la réservation de {data.Client.firstname}?</span>
+                <IconButton style={{position: 'absolute', top: '8px', right: '8px'}} onClick={onClose}>
+                    <CloseIcon color="secondary"/>
                 </IconButton>
             </DialogTitle>
             <DialogContent>
-                Que souhaitez-vous faire avec cette réservation ?
+                <h3>{data.Client.firstname} {data.Client.lastname}</h3>
+                <p><strong>Table:</strong> {data.tableName}</p>
+                <p style={{marginTop: '16px'}}>Veuillez choisir une action:</p>
             </DialogContent>
-            <DialogActions>
-                <Button variant="contained" color="primary" onClick={deleteTable}>
-                    Supprimer uniquement {data.tableName}
+            <DialogActions style={{justifyContent: 'space-between', padding: '16px 24px'}}>
+                <Button
+                    startIcon={<DeleteIcon/>}
+                    variant="contained"
+                    color="primary"
+                    onClick={deleteTable}
+                >
+                    Supprimer <br/> cette table
                 </Button>
-                <Button variant="contained" color="secondary" onClick={deleteFullReservation}>
-                    Supprimer toute la réservation
+                <Button
+                    startIcon={<WarningIcon/>}
+                    variant="contained"
+                    color="secondary"
+                    onClick={deleteFullReservation}
+                >
+                    Supprimer <br/> toute la réservation
                 </Button>
-                <Button variant="contained" color="error" onClick={noShow}>
-                    Signaler comme absent
+                <Button
+                    startIcon={<NotInterestedIcon/>}
+                    variant="contained"
+                    style={{backgroundColor: 'red', color: 'white'}}
+                    onClick={noShow}
+                >
+                    Signaler <br/> comme absent
                 </Button>
             </DialogActions>
         </Dialog>
@@ -322,6 +340,13 @@ function Reservation() {
 
     // ######### STATE #########
 
+    const config = {
+        schedulerWidth: '85%',
+        dayStartFrom: 7,
+        dayStopTo: 23,
+        dayCellWidth: 45,
+    }
+
     const [resources, setResources] = useState([]);
     const [events, setEvents] = useState([]);
     const [viewModel, setViewModel] = useState(new SchedulerData(moment().format("YYYY-MM-DD"),
@@ -329,8 +354,10 @@ function Reservation() {
         false,
         false,
         {
-            dayStartFrom: 8,
+            schedulerWidth: '85%',
+            dayStartFrom: 7,
             dayStopTo: 23,
+            dayCellWidth: 45,
         }));
 
 
@@ -373,7 +400,12 @@ function Reservation() {
 
     useEffect(() => {
         console.log("useEffect 1 has been called!");
-        let newSchedulerData = new SchedulerData(viewModel.startDate, viewModel.viewType);
+        let newSchedulerData = new SchedulerData(
+            viewModel.startDate,
+            viewModel.viewType,
+            false,
+            false,
+            config);
         newSchedulerData.setResources(resources);
         newSchedulerData.setEvents(events);
         setViewModel(newSchedulerData);
@@ -442,7 +474,17 @@ function Reservation() {
     // ### SCHEDULER FUNCTIONS ###
 
     function nextClick(schedulerData) {
-        let newSchedulerData = new SchedulerData(schedulerData.startDate, schedulerData.viewType);
+        let newSchedulerData = new SchedulerData(
+            schedulerData.startDate,
+            schedulerData.viewType,
+            false,
+            false,
+            {
+                schedulerWidth: '85%',
+                dayStartFrom: 7,
+                dayStopTo: 23,
+                dayCellWidth: 45,
+            });
         newSchedulerData.next();
         newSchedulerData.setResources(resources);
         newSchedulerData.setEvents(events);
@@ -450,27 +492,37 @@ function Reservation() {
     }
 
     function prevClick(schedulerData) {
-        let newSchedulerData = new SchedulerData(schedulerData.startDate, schedulerData.viewType);
+        let newSchedulerData = new SchedulerData(
+            schedulerData.startDate,
+            schedulerData.viewType,
+            false, false,
+            config);
         newSchedulerData.prev();
         newSchedulerData.setResources(resources);
         newSchedulerData.setEvents(events);
         setViewModel(newSchedulerData);
     }
 
-    function onSelectDate(schedulerData, date) {
-        let newSchedulerData = new SchedulerData(date, schedulerData.viewType);
+    function onViewChange(schedulerData, view) {
+        let newSchedulerData = new SchedulerData(
+            schedulerData.startDate,
+            view.viewType,
+            false,
+            false,
+            config);
         newSchedulerData.setResources(resources);
         newSchedulerData.setEvents(events);
+        newSchedulerData.setViewType(view.viewType);
         setViewModel(newSchedulerData);
     }
 
-    function onViewChange(schedulerData, view) {
-        let newSchedulerData = new SchedulerData(schedulerData.startDate, view.viewType, false, false, {
-            agendaResourceTableWidth: 1600,
-            dayStartFrom: 8,
-            dayStopTo: 23,
-        });
-        newSchedulerData.setViewType(view.viewType)
+    function onSelectDate(schedulerData, date) {
+        let newSchedulerData = new SchedulerData(
+            date,
+            schedulerData.viewType,
+            false,
+            false,
+            config);
         newSchedulerData.setResources(resources);
         newSchedulerData.setEvents(events);
         setViewModel(newSchedulerData);
@@ -944,6 +996,7 @@ function Reservation() {
     return (
         <Nav Breadcrumbs={CustomBreadcrumbs}>
 
+
             <CreateReservationModal
                 isOpen={isModalCreateReservationOpen}
                 onClose={clearModalCreation}
@@ -973,6 +1026,7 @@ function Reservation() {
 
 
             <Scheduler
+                key={viewModel.startDate + viewModel.viewType}
                 schedulerData={viewModel}
                 nextClick={nextClick}
                 onSelectDate={onSelectDate}
@@ -988,11 +1042,6 @@ function Reservation() {
 
                 eventItemPopoverTemplateResolver={eventItemPopoverTemplateResolver}
             />
-
-            <Button variant="contained" color="primary" onClick={() => console.log(events)}>
-                Log le state events
-            </Button>
-
         </Nav>);
 }
 
