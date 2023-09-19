@@ -8,7 +8,7 @@ const steps = ['Carte', 'Catégories', 'Produits'];
 
 export default function CardForm() {
     const [activeStep, setActiveStep] = useState(0);
-    const { cardInfo } = useContext(CardMenuContext);
+    const { cardInfo, categoryList, categoryListProduct } = useContext(CardMenuContext);
 
     const handleNext = () => {
         setActiveStep(activeStep + 1);
@@ -67,7 +67,7 @@ export default function CardForm() {
                                     variant="contained"
                                     onClick={
                                         activeStep === steps.length - 1
-                                            ? () => handleCreateAllCardInfo(cardInfo, [], [])
+                                            ? () => handleCreateAllCardInfo(cardInfo, categoryList, categoryListProduct)
                                             : handleNext
                                     }
                                     sx={{ mt: 3, ml: 1 }}

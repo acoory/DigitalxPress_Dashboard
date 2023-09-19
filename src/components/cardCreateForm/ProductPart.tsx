@@ -21,7 +21,7 @@ export default function ProductPart() {
                                 </Typography>
                             </Grid>
                         </Grid>
-                        <AddProductInputt />
+                        <AddProductInputt categoryName={category} />
                     </React.Fragment>
                 ))
             }

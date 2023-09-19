@@ -6,6 +6,8 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import {useEffect} from "react";
 import axios from "axios";
+import {CardMenuContext} from "../../context/CardMenuContext";
+import {set} from "date-fns";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -36,18 +38,19 @@ export const fetchCreateCard = async (cardName: string, cardDescription: string)
 }
 
 export const fetchCreateCategory = async (categoryName: string) => {
-    const response = await fetch(process.env.REACT_APP_API_URL + '/api/category', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+    const response =  await axios.post(
+        process.env.REACT_APP_API_URL + "/api/category",
+        {
             name: categoryName,
-        })
-    });
-    const data = await response.json();
-    return data;
+        },
+        {
+            withCredentials: true, // Active la gestion des cookies
+        }
+    );
+
+    return response;
 }
+
 
 export const fetchCreateCardProduct = async (cardId: number, productId: number, categoryId: number) => {
     const response = await fetch(process.env.REACT_APP_API_URL + '/api/card-product', {
@@ -65,10 +68,10 @@ export const fetchCreateCardProduct = async (cardId: number, productId: number, 
     return data;
 }
 
-export default function AddProductInputt() {
+export default function AddProductInputt(categoryName: any) {
     const [productsFetched, setProductsFetched] = React.useState<readonly Product[]>([]);
     const [selectedProducts, setSelectedProducts]: any = React.useState<readonly Product[]>([]);
-
+    const {categoryListProduct, setCategoryListProduct} = React.useContext(CardMenuContext);
     useEffect(() => {
         let active = true;
 
@@ -92,6 +95,7 @@ export default function AddProductInputt() {
 
     const handleSelectChange = (event: React.ChangeEvent<{}>, value: Product[]) => {
         setSelectedProducts(value);
+        setCategoryListProduct([...categoryListProduct, {category: categoryName.categoryName, products: value}]);
     };
 
     return (
@@ -103,6 +107,7 @@ export default function AddProductInputt() {
             getOptionLabel={(option: any) => option.name}
             value={selectedProducts}
             onChange={handleSelectChange}
+
             renderOption={(props, option, { selected }) => (
                 <li {...props}>
                     <Checkbox
@@ -121,3 +126,6 @@ export default function AddProductInputt() {
         />
     );
 }
+
+
+
