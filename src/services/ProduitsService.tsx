@@ -78,10 +78,11 @@ export class ProduitsService {
       return response;
     } catch (error) {
       // throw new Error(error);
+      console.log("error", error);
     }
   }
 
-  async deleteProduct(id: number) {
+  async deleteProduct(id: any) {
     try {
       const response = await this.instance.delete(`/api/product/${id}`, {
         withCredentials: true,

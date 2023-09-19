@@ -1,6 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import Nav from "../components/layout/Nav";
-import { Breadcrumbs, Chip, InputLabel, ListItem, Typography } from "@mui/material";
+import {
+  Breadcrumbs,
+  Button,
+  Chip,
+  DialogTitle,
+  InputLabel,
+  ListItem,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { AiOutlinePlus } from "react-icons/ai";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useDemoData } from "@mui/x-data-grid-generator";
@@ -41,8 +50,11 @@ export default function Produits() {
     listOption: ["frite", "légumes"],
   });
 
-  const supplementsRef = useRef<any>(null);
-  const supplementsPriceRef = useRef<any>(null);
+  // const supplementsRef = useRef<any>(null);
+  // const supplementsPriceRef = useRef<any>(null);
+
+  const [supplementsPriceRef, setSupplementsPriceRef] = useState<any>("");
+  const [supplementsRef, setSupplementsRef] = useState<any>("");
 
   useEffect(() => {
     produitService.getAll().then((res) => {
@@ -169,7 +181,7 @@ export default function Produits() {
               headerName: "",
               width: 130,
 
-              renderCell: (params) => (
+              renderCell: (params: any) => (
                 <>
                   <span
                     className=" rounded-md p-1 ease-out duration-300 hover:bg-[#ececec] text-[#202020] cursor-pointer"
@@ -182,7 +194,22 @@ export default function Produits() {
                     <FaRegEdit size={20} color="#595959" />
                   </span>
                   {/*  delete */}
-                  <span className="text-[#202020] cursor-pointer ml-[10px]">
+                  <span
+                    onClick={() => {
+                      produitService.deleteProduct(params.id).then((res) => {
+                        if (res.status == 204) {
+                          console.log("res", res);
+                          setProducts(
+                            (products as any).filter(
+                              (product: any) => product.id !== params.id
+                            )
+                          );
+                        }
+                      });
+                      console.log(params.id);
+                    }}
+                    className="text-[#202020] cursor-pointer ml-[10px]"
+                  >
                     <MdDeleteSweep size={22} className={"text-[#cb3a3a]"} />
                   </span>
                 </>
@@ -206,15 +233,14 @@ export default function Produits() {
           aria-describedby="modal-modal-description"
         >
           <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              Produit
-            </Typography>
-
-            <div className="grid grid-cols-1 overflow-scroll h-[70vh]">
+            <DialogTitle>Modifier le produit</DialogTitle>
+            <hr className="mt-[20px] mb-[20px] border-[#bebebe36]" />
+            <div className="flex flex-col overflow-scroll h-[60vh]">
               <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="text-[#202020] font-[500]">Nom du produit</label>
-                  <input
+                  {/* <label className="text-[#202020] font-[500]">Nom du produit</label> */}
+                  <TextField
+                    label="Nom du produit"
                     value={product?.name || ""}
                     onChange={(e) => {
                       setProduct({
@@ -222,16 +248,15 @@ export default function Produits() {
                         name: e.target.value,
                       });
                     }}
-
-
-                    className="border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md px-[20px] py-[10px] w-full"
+                    fullWidth
+                    margin="dense"
                     type="text"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[#202020] font-[500]">Prix</label>
-                  <input
+                  <TextField
+                    label="Prix"
                     value={product?.price || ""}
                     onChange={(e) =>
                       setProduct({
@@ -239,14 +264,16 @@ export default function Produits() {
                         price: e.target.value,
                       })
                     }
-                    className="border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md px-[20px] py-[10px] w-full"
+                    fullWidth
+                    margin="dense"
                     type="number"
                   />
                 </div>
               </div>
+              <hr className="mt-[10px] mb-[10px] border-[#bebebe36]" />
 
-              <label className="text-[#202020] font-[500]">Description</label>
-              <textarea
+              <TextField
+                label="Description"
                 value={product?.description || ""}
                 onChange={(e) =>
                   setProduct({
@@ -254,31 +281,53 @@ export default function Produits() {
                     description: e.target.value,
                   })
                 }
-                className="border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md px-[20px] py-[10px] w-full"
+                fullWidth
+                margin="dense"
                 rows={5}
-              ></textarea>
-              <hr className="mt-[20px] mb-[20px] border-[#bebebe36]" />
-              <label className="text-[#202020] font-[500]">Suppléments</label>
-              <div className="grid grid-cols-3 gap-4">
-                <input
-                  ref={supplementsRef}
+              />
+              <hr className="mt-[10px] mb-[10px] border-[#bebebe36]" />
+              {/* <label className="text-[#202020] font-[500]">Suppléments</label> */}
+              <div className="flex flex-row gap-4">
+                <TextField
+                  label="Nom du supplément"
+                  onChange={(e) => {
+                    setSupplementsRef(e.target.value);
+                  }}
                   type="text"
-                  className="border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md px-[20px] py-[10px] w-full"
+                  fullWidth
+                  margin="dense"
                 />
-                <input
-                  ref={supplementsPriceRef}
+                <TextField
+                  label="Prix du supplément"
+                  onChange={(e) => {
+                    setSupplementsPriceRef(e.target.value);
+                  }}
                   type="number"
-                  className="border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md px-[20px] py-[10px] w-full"
+                  fullWidth
+                  margin="dense"
                 />
-                <button
+                <Button
+                  style={{
+                    margin: "auto",
+                    height: "80%",
+                    width: "40%",
+                  }}
+                  variant="contained"
+                  size="medium"
                   onClick={() => {
-                    console.log("supplementsRef", supplementsRef.current.value);
-                    console.log("supplementsPriceRef", supplementsPriceRef.current.value);
+                    console.log("supplementsRef", supplementsRef);
+                    console.log("supplementsPriceRef", supplementsPriceRef);
+
+                    console.log({
+                      name: supplementsRef,
+                      price: parseInt(supplementsPriceRef),
+                      productId: parseInt(product?.id),
+                    });
 
                     produitService
                       .addSupplement({
-                        name: supplementsRef.current.value,
-                        price: parseInt(supplementsPriceRef.current.value),
+                        name: supplementsRef,
+                        price: parseInt(supplementsPriceRef),
                         productId: parseInt(product?.id),
                       })
                       .then((res) => {
@@ -288,21 +337,26 @@ export default function Produits() {
                             ...supplements,
                             {
                               productId: product?.id,
-                              name: supplementsRef.current.value,
-                              price: supplementsPriceRef.current.value,
+                              name: supplementsRef,
+                              price: supplementsPriceRef,
                             },
                           ]);
                         }
                       });
                   }}
-                  className="bg-[#202020] flex flex-row pl-5 pr-5 pt-[8px] pb-[8px] rounded-md text-white items-center text-[13px]"
                 >
-                  <AiOutlinePlus size={20} className="mr-2" />
                   Ajouter
-                </button>
-                <hr className="mt-[20px] mb-[20px] border-[#bebebe36]" />
+                </Button>
               </div>
-              <label className="text-[#202020] font-[500]">Listes des suppléments</label>
+              {supplements.length > 0 ? (
+                <>
+                  <hr className="mt-[20px] mb-[20px] border-[#bebebe36]" />
+                  <label className="text-[#202020] font-[500] mb-[10px]">
+                    Listes des suppléments
+                  </label>
+                </>
+              ) : null}
+
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {supplements.map((supp: any, i: any) => (
                   <Chip
@@ -324,8 +378,8 @@ export default function Produits() {
                   />
                 ))}
               </div>
-              <hr className="mt-[20px] mb-[20px] border-[#bebebe36]" />
-              <label className="text-[#202020] font-[500]">Produit choix</label>
+
+              {/* <label className="text-[#202020] font-[500]">Produit choix</label>
               <input
                 value={choiceProduct?.choiceName || ""}
                 onChange={(e) =>
@@ -371,22 +425,28 @@ export default function Produits() {
                   type="text"
                   className="tags-input"
                   placeholder="Ajouter un choix"
-                />
-              </div>
-
-              <button
-                  className="bg-[#202020] flex flex-row pl-5 pr-5 pt-[8px] pb-[8px] rounded-md text-white items-center text-[13px]"
-                  onClick={() => {
-                    produitService.updateProduct(product, product.id).then((res) => {
-                      // console.log("res", res);
-                      // if (res.status == 200) {
-                        setOpen(false);
-                      // }
-                    });
-                  }}
+                /> */}
+              {/* </div> */}
+              <br />
+              <Button
+                style={{
+                  // height: "80%",
+                  width: "40%",
+                  padding: "10px",
+                }}
+                variant="contained"
+                size="medium"
+                onClick={() => {
+                  produitService.updateProduct(product, product.id).then((res) => {
+                    // console.log("res", res);
+                    // if (res.status == 200) {
+                    setOpen(false);
+                    // }
+                  });
+                }}
               >
                 Modifier le produit
-              </button>
+              </Button>
             </div>
           </Box>
         </Modal>

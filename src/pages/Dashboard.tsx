@@ -39,8 +39,8 @@ export default function Dashboard() {
     >
       <div className="grid-card">
         <CardReport
-          totalText={`Total reservations ${reversations.length}`}
-          total={0}
+          totalText={`Total reservations`}
+          total={reversations.length}
           Icon={() => <BiSolidUserCircle size={22} color="white" />}
           color="#202020"
         />
