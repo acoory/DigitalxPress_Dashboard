@@ -1,0 +1,8 @@
+services:
+  backoffice:
+    build:
+      context: .
+    container_name: backoffice
+    ports:
+      - "80:80"
+      - "443:443"
