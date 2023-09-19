@@ -113,4 +113,21 @@ export class ProduitsService {
       // throw new Error(error);
     }
   }
+
+  async updateProduct(data: any, id: number) {
+    const newData = {
+      name: data.name,
+      price: parseInt(data.price),
+      description: data.description,
+    };
+    try {
+      const response = await this.instance.put(`/api/product/${id}`, newData, {
+        withCredentials: true,
+      });
+      return response;
+    } catch (error) {
+      // throw new Error(error);
+      console.log("error", error);
+    }
+  }
 }

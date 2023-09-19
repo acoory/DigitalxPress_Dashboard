@@ -374,7 +374,19 @@ export default function Produits() {
                 />
               </div>
 
-              <button onClick={() => console.log(product)}>trst</button>
+              <button
+                  className="bg-[#202020] flex flex-row pl-5 pr-5 pt-[8px] pb-[8px] rounded-md text-white items-center text-[13px]"
+                  onClick={() => {
+                    produitService.updateProduct(product, product.id).then((res) => {
+                      // console.log("res", res);
+                      // if (res.status == 200) {
+                        setOpen(false);
+                      // }
+                    });
+                  }}
+              >
+                Modifier le produit
+              </button>
             </div>
           </Box>
         </Modal>
