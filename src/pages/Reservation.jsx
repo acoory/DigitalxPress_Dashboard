@@ -293,16 +293,11 @@ function DeleteReservationModal({isOpen, onClose, data, deleteTable, deleteFullR
     return (
         <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle style={{background: '#f4f4f4', position: 'relative'}}>
-                <span>Que faire avec la table de la réservation de {data.Client.firstname}?</span>
+                <span>Que faire avec {data.tableName} de la réservation de {data.Client.firstname}?</span>
                 <IconButton style={{position: 'absolute', top: '8px', right: '8px'}} onClick={onClose}>
                     <CloseIcon color="secondary"/>
                 </IconButton>
             </DialogTitle>
-            <DialogContent>
-                <h3>{data.Client.firstname} {data.Client.lastname}</h3>
-                <p><strong>Table:</strong> {data.tableName}</p>
-                <p style={{marginTop: '16px'}}>Veuillez choisir une action:</p>
-            </DialogContent>
             <DialogActions style={{justifyContent: 'space-between', padding: '16px 24px'}}>
                 <Button
                     startIcon={<DeleteIcon/>}
@@ -310,7 +305,7 @@ function DeleteReservationModal({isOpen, onClose, data, deleteTable, deleteFullR
                     color="primary"
                     onClick={deleteTable}
                 >
-                    Supprimer <br/> cette table
+                    Supprimer <br/> la table {data.tableName}
                 </Button>
                 <Button
                     startIcon={<WarningIcon/>}
