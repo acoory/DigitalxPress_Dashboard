@@ -246,7 +246,7 @@ export default function Horaire_test() {
               fontWeight: 300,
             }}
           >
-            Horaires test
+            Horaires & Services
           </Typography>
         </Breadcrumbs>
       )}
