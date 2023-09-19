@@ -216,12 +216,14 @@ export default function Produits() {
                   <label className="text-[#202020] font-[500]">Nom du produit</label>
                   <input
                     value={product?.name || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setProduct({
                         ...product,
-                        product: { ...product.product, name: e.target.value },
-                      })
-                    }
+                        name: e.target.value,
+                      });
+                    }}
+
+
                     className="border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md px-[20px] py-[10px] w-full"
                     type="text"
                   />
@@ -234,7 +236,7 @@ export default function Produits() {
                     onChange={(e) =>
                       setProduct({
                         ...product,
-                        product: { ...product.product, price: e.target.value },
+                        price: e.target.value,
                       })
                     }
                     className="border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md px-[20px] py-[10px] w-full"
@@ -249,7 +251,7 @@ export default function Produits() {
                 onChange={(e) =>
                   setProduct({
                     ...product,
-                    product: { ...product.product, description: e.target.value },
+                    description: e.target.value,
                   })
                 }
                 className="border border-[#bebebe36] rounded-md shadow-sm lg:shadow-md px-[20px] py-[10px] w-full"

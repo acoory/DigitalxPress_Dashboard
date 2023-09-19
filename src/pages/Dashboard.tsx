@@ -67,7 +67,24 @@ export default function Dashboard() {
           columns={[
             { field: "id", headerName: "ID", width: 70 },
             { field: "date", headerName: "Date", width: 130 },
-            { field: "Client", headerName: "Client", width: 130 },
+              {
+                  field: "ClientName",
+                  headerName: "Client Name",
+                  width: 250,
+                  valueGetter: (params) => params.row.Client.firstname + ' ' + params.row.Client.lastname
+              },
+              {
+                  field: "ClientEmail",
+                  headerName: "Client Email",
+                  width: 250,
+                  valueGetter: (params) => params.row.Client.email
+              },
+              {
+                  field: "ClientMobile",
+                  headerName: "Mobile Number",
+                  width: 150,
+                  valueGetter: (params) => params.row.Client.mobileNumber || 'N/A'
+              },
             { field: "status", headerName: "Status", width: 130 },
             { field: "numberOfPersons", headerName: "Nombre de personnes", width: 130 },
             { field: "comment", headerName: "Commentaire", width: 130 },
